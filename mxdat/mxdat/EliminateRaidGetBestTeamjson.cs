@@ -39,6 +39,7 @@ namespace mxdat
                         string nestedJsonStr = nestedJsonToken.ToString();
                         JObject nestedData = JObject.Parse(nestedJsonStr);
                         jsonData["packet"] = nestedData;
+                        jsonData["timestamp"] = DateTime.UtcNow.ToString("o");
                         File.WriteAllText(file, jsonData.ToString(Formatting.Indented));
                         Console.WriteLine($"The content of file {Path.GetFileName(file)} has been updated.");
                     }

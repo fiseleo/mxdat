@@ -8,6 +8,7 @@ namespace mxdat
     {
         public static void EliminateRaidOpponentListjsonMain(string[] args)
         {
+
             // Step 1: Check and create RaidOpponentList directory if not exists
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
             if (!Directory.Exists(jsonFolderPath))
@@ -55,11 +56,14 @@ namespace mxdat
             }
 
             // Step 3: Write combinedData to nested_data.json with indented format
-            string nestedDataPath = Path.Combine(jsonFolderPath, "EliminateRaidOpponentList.json");
+            string dateTimeFormat = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string nestedDataFileName = $"EliminateRaidOpponentList{dateTimeFormat}.json";
+            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
+            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
             File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
 
-            Console.WriteLine("Successfully combined all JSON file data and wrote to EliminateRaidOpponentList.json");
-            ExtractAccountIdAndNickname();
+            Console.WriteLine($"Successfully combined all JSON file data and wrote to {nestedDataFileName}.json");
+            ExtractAccountIdAndNickname(jsonFolderPath, dateTimeFormat);
         }
         
         private static int GetFileNumber(string filePath)
@@ -76,12 +80,12 @@ namespace mxdat
             }
         }
 
-        private static void ExtractAccountIdAndNickname()
+        private static void ExtractAccountIdAndNickname(string jsonFolderPath, string dateTimeFormat)
         {
             try
             {
-                string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
-                string nestedDataPath = Path.Combine(jsonFolderPath, "EliminateRaidOpponentList.json");
+                string nestedDataFileName = $"EliminateRaidOpponentList{dateTimeFormat}.json";
+                string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
                 string jsonContent = File.ReadAllText(nestedDataPath);
                 JObject nestedData = JObject.Parse(jsonContent);
                 JArray opponents = (JArray)nestedData["OpponentUserDBs"];

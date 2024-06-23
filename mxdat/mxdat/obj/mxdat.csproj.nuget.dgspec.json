@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\1100853\\Desktop\\mxdat\\mxdat\\mxdat.csproj": {}
+    "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj": {}
   },
   "projects": {
-    "C:\\Users\\1100853\\Desktop\\mxdat\\mxdat\\mxdat.csproj": {
+    "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\1100853\\Desktop\\mxdat\\mxdat\\mxdat.csproj",
+        "projectUniqueName": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj",
         "projectName": "mxdat",
-        "projectPath": "C:\\Users\\1100853\\Desktop\\mxdat\\mxdat\\mxdat.csproj",
+        "projectPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj",
         "packagesPath": "C:\\Users\\1100853\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\1100853\\Desktop\\mxdat\\mxdat\\obj\\",
+        "outputPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\1100853\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,6 +43,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "DotNetZip": {
+              "target": "Package",
+              "version": "[1.9.1.8, )"
+            },
+            "Google.FlatBuffers": {
+              "target": "Package",
+              "version": "[24.3.25, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
@@ -50,6 +58,10 @@
             "RestSharp": {
               "target": "Package",
               "version": "[106.11.7, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[4.0.0, )"
             }
           },
           "imports": [

@@ -55,11 +55,13 @@ namespace mxdat
                 }
             }
 
-            // Step 3: Write combinedData to nested_data.json with indented format
-            string nestedDataPath = Path.Combine(jsonFolderPath, "RaidOpponentList.json");
+            // Step 3: Write combinedData to RaidOpponentList{DateTime}.json with indented format
+            string dateTimeFormat = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string nestedDataFileName = $"RaidOpponentList{dateTimeFormat}.json";
+            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
+            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
             File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
-
-            Console.WriteLine("Successfully merged all JSON file data and written to RaidOpponentList.json");
+            Console.WriteLine($"Successfully merged all JSON file data and written to {nestedDataFileName}");
             ProcessRaidOpponentListData();
         }
 
@@ -80,7 +82,9 @@ namespace mxdat
         private static void ProcessRaidOpponentListData()
         {
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
-            string nestedDataPath = Path.Combine(jsonFolderPath, "RaidOpponentList.json");
+            string dateTimeFormat = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string nestedDataFileName = $"RaidOpponentList{dateTimeFormat}.json";
+            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
 
             try
             {
@@ -96,26 +100,28 @@ namespace mxdat
                     RaidOpponentListDB.Remove("LeaderCharacterUniqueId");
                 }
                 File.WriteAllText(nestedDataPath, nestedData.ToString(Formatting.Indented));
-                Console.WriteLine("Specified JSON data sections have been removed from RaidOpponentList.json.");
+                Console.WriteLine($"Specified JSON data sections have been removed from {nestedDataFileName}.json.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing RaidOpponentList.json: {ex.Message}");
             }
-
-            ExtractAccountIdAndNickname();
+            
+            ExtractAccountIdAndNickname(jsonFolderPath, dateTimeFormat);
         }
 
-        private static void ExtractAccountIdAndNickname()
+
+        private static void ExtractAccountIdAndNickname(string jsonFolderPath, string dateTimeFormat)
         {
             try
             {
-                string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
-                string nestedDataPath = Path.Combine(jsonFolderPath, "RaidOpponentList.json");
+                string nestedDataFileName = $"RaidOpponentList{dateTimeFormat}.json";
+                string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
                 string jsonContent = File.ReadAllText(nestedDataPath);
                 JObject nestedData = JObject.Parse(jsonContent);
                 JArray opponents = (JArray)nestedData["OpponentUserDBs"];
-                JArray resultArray = new JArray();
+                JArray accountIdNicknameList = new JArray();
+                JArray resultArray = new JArray(); // Declare and initialize resultArray
                 foreach (JObject opponent in opponents)
                 {
                     long accountId = opponent.Value<long>("AccountId");
@@ -127,14 +133,16 @@ namespace mxdat
                     resultObject["Rank"] = rank;
                     resultArray.Add(resultObject);
                 }
-                string ExtractAccountIdAndNicknamePath = Path.Combine(jsonFolderPath, "RaidOpponentListUserID&Nickname.json");
-                File.WriteAllText(ExtractAccountIdAndNicknamePath, resultArray.ToString());
-                Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {ExtractAccountIdAndNicknamePath}");
+                string resultFileName = $"RaidOpponentListUserID&Nickname.json";
+                string resultFilePath = Path.Combine(jsonFolderPath, resultFileName);
+                File.WriteAllText(resultFilePath, resultArray.ToString());
+                Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error occurred during processing: {ex.Message}");
             }
+            
         }
     }    
 }
