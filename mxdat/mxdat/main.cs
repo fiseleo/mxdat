@@ -12,7 +12,7 @@ namespace mxdat
                 Console.WriteLine("2 - Check Raid Best Team");
                 Console.WriteLine("3 - Check Eliminate Raid Best Team");
                 Console.WriteLine("4 - Get Nexon Server json");
-                Console.WriteLine("A - Get list");
+                Console.WriteLine("5 - Get list");
                 Console.WriteLine("Enter any other key to exit the program");
 
                 string input = Console.ReadLine();
@@ -26,19 +26,15 @@ namespace mxdat
                         EliminateRaidOpponentList.EliminateRaidOpponentListMain(args);
                         break;
                     case "2":
-                        Console.WriteLine("Please enter UserID:");
-                        string RaidGetBestTeamUserID = Console.ReadLine();
-                        RaidGetBestTeam.RaidGetBestTeamMain(RaidGetBestTeamUserID);
+                        RaidGetBestTeam.RaidGetBestTeamMain(args);
                         break;
                     case "3":
-                        Console.WriteLine("Please enter UserID:");
-                        string EliminateRaidGetBestTeamUserID = Console.ReadLine();
-                        EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(EliminateRaidGetBestTeamUserID);
+                        EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(args);
                         break;
                     case "4":
                         GetNexonServerjson.GetNexonServerjsonMain(args);
                         break;
-                    case "A":
+                    case "5":
                         Getlist.GetlistMain(args);
                         break;
                     default:

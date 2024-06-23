@@ -181,11 +181,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj",
+      "projectUniqueName": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
       "projectName": "mxdat",
-      "projectPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat.csproj",
+      "projectPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
       "packagesPath": "C:\\Users\\1100853\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\obj\\",
+      "outputPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\1100853\\AppData\\Roaming\\NuGet\\NuGet.Config"
