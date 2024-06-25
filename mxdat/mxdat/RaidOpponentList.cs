@@ -1,6 +1,7 @@
 using mxdat.NetworkProtocol;
 using RestSharp;
 using System.Net;
+using Newtonsoft.Json.Linq;
 
 namespace mxdat
 {
@@ -8,6 +9,7 @@ namespace mxdat
     {
         public static void RaidOpponentListMain(string[] args)
         {
+            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -23,12 +25,21 @@ namespace mxdat
             int rankValue = 1;
             Console.WriteLine("Enter Hash:");
             long hash = long.Parse(Console.ReadLine());
-            Console.WriteLine("Enter MxToken:");
-            string mxtoken = Console.ReadLine();
             Console.WriteLine("Enter AccountServer:");
             int AccountServerId = int.Parse(Console.ReadLine());
             Console.WriteLine("Enter AccountId:");
             int AccountId = int.Parse(Console.ReadLine());
+
+            static string ExtractMxToken(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string mxToken = jsonObject["SessionKey"]["MxToken"].ToString();
+                return mxToken;
+            }
+
+            string mxtoken = ExtractMxToken(mxdatjson);
+
 
             string baseJson = "{{\"Protocol\": 17016, " +
                 "\"Rank\": {0}, " +
@@ -44,8 +55,7 @@ namespace mxdat
                     //input SessionKey
                     "{\"AccountServerId\": {3}, " +
                     "\"MxToken\": \"{2}\"}}, " +
-                    "\"AccountId\": \"{4}\"}}";
-
+                    "\"AccountId\": \"{4}\"}}"; //input AccountId
             while (true)
             {
                 string json = string.Format(baseJson, rankValue, hash, mxtoken, AccountServerId, AccountId);
@@ -106,6 +116,8 @@ namespace mxdat
                 hash++;
                 Thread.Sleep(1000);
             }
+
+
 
             RaidOpponentListjson.RaidOpponentListjsonMain(args);
         }
