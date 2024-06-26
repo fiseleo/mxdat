@@ -6,7 +6,7 @@ namespace mxdat
 {
     public class Decryptmxdat
     {
-        public static void DecryptMain(string[] args)
+        public static async void DecryptMain(string[] args)
         {
             string filePath = @"C:\ba\mx.dat";
             byte[] mx = File.ReadAllBytes(filePath);
@@ -34,8 +34,10 @@ namespace mxdat
             Console.WriteLine(jsonText);
             File.WriteAllText("mxdat.json", jsonText);
 
-
+            await GetNexonServerjson.GetNexonServerjsonMain(args);
         }
+
+        
      
     }
 }

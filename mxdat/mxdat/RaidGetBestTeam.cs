@@ -9,6 +9,7 @@ namespace mxdat
     {
         public static void RaidGetBestTeamMain(string[] args)
         {
+            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidGetBestTeam");
 
             if (!Directory.Exists(jsonFolderPath))
@@ -21,15 +22,22 @@ namespace mxdat
                 Console.WriteLine("RaidGetBestTeam folder already exists");
             }
 
+            static string ExtractMxToken(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string mxToken = jsonObject["SessionKey"]["MxToken"].ToString();
+                return mxToken;
+            }
+
+            string mxtoken = ExtractMxToken(mxdatjson);
+
             PacketCryptManager Instance = new PacketCryptManager();
-            Console.WriteLine("Please enter Hash:");
-            long hash = long.Parse(Console.ReadLine());
-            Console.WriteLine("Please enter MxToken:");
-            string mxtoken = Console.ReadLine();
-            Console.WriteLine("Please enter AccountServer:");
-            int AccountServerId = int.Parse(Console.ReadLine());
-            Console.WriteLine("Please enter AccountId:");
-            int AccountId = int.Parse(Console.ReadLine());
+
+            long hash = 114;
+            long AccountServerId = 1;
+            long AccountId = 1;
+
 
             string baseJson = "{{\"Protocol\": 17020, " +
                 "\"SearchAccountId\": {0}, " +

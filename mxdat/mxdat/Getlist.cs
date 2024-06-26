@@ -21,7 +21,7 @@ namespace mxdat
 
     public class Getlist
     {
-        public static void GetlistMain(string[] args)
+        public static SeasonData GetClosestSeason()
         {
             string rootPath = AppDomain.CurrentDomain.BaseDirectory;
             string sourcePath = Path.Combine(rootPath, "mxdatpy", "extracted", "Excel");
@@ -91,29 +91,49 @@ namespace mxdat
                 }
             }
 
-            // Output the closest OpenRaidBossGroup to the Console
-            if (closestSeason != null && closestSeason.OpenRaidBossGroup != null && closestSeason.OpenRaidBossGroup.Count > 0)
-            {
-                Console.WriteLine("現在開放的是:");
-                foreach (var bossGroup in closestSeason.OpenRaidBossGroup)
-                {
-                    Console.WriteLine(bossGroup);
-                }
+            return closestSeason;
+        }
 
-                if (closestSeason.SourceFile == "EliminateRaidSeasonManageExcelTable.json")
-                {
-                    Console.WriteLine("Executing EliminateRaidOpponentList...");
-                    mxdat.EliminateRaidOpponentList.EliminateRaidOpponentListMain(args);
-                }
-                else if (closestSeason.SourceFile == "RaidSeasonManageExcelTable.json")
-                {
-                    Console.WriteLine("Executing RaidOpponentList...");
-                    mxdat.RaidOpponentList.RaidOpponentListMain(args);
-                }
-            }
-            else
+        public static void GetlistMain(string[] args)
+        {
+            while (true)
             {
-                Console.WriteLine("沒有開放。");
+                var closestSeason = GetClosestSeason();
+                var now = DateTime.Now;
+
+                // Output the closest OpenRaidBossGroup to the Console if the start date is today
+                if (closestSeason != null && (closestSeason.SeasonStartData - now).Days == 0)
+                {
+                    if (closestSeason.OpenRaidBossGroup != null && closestSeason.OpenRaidBossGroup.Count > 0)
+                    {
+                        Console.WriteLine("現在開放的是:");
+                        foreach (var bossGroup in closestSeason.OpenRaidBossGroup)
+                        {
+                            Console.WriteLine(bossGroup);
+                        }
+
+                        if (closestSeason.SourceFile == "EliminateRaidSeasonManageExcelTable.json")
+                        {
+                            Console.WriteLine("Executing EliminateRaidOpponentList...");
+                            EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
+                        }
+                        else if (closestSeason.SourceFile == "RaidSeasonManageExcelTable.json")
+                        {
+                            Console.WriteLine("Executing RaidOpponentList...");
+                            RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("沒有開放。");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("沒有開放。");
+                    Thread.Sleep(86400000); 
+                }
             }
         }
     }

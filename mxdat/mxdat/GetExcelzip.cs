@@ -1,13 +1,11 @@
-using System;
-using System.IO;
-using System.Net.Http;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 
 namespace mxdat
 {
     public class GetExcelzip
     {
-        public static async Task GetExcelzipMain(string[] args)
+        public static void GetExcelzipMain(string[] args)
         {
             try
             {
@@ -18,24 +16,24 @@ namespace mxdat
                 string baseUrl = resourcePath.Substring(0, resourcePath.LastIndexOf("/") + 1);
                 string excelZipUrl = $"{baseUrl}Preload/TableBundles/Excel.zip";
 
-                using (var httpClient = new HttpClient())
+                var client = new RestClient(excelZipUrl);
+                var request = new RestRequest(Method.GET);
+                IRestResponse response = client.Execute(request);
+
+                if (response.IsSuccessful)
                 {
-                    var response = await httpClient.GetAsync(excelZipUrl);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
-                        File.WriteAllBytes("Excel.zip", fileBytes);
-                        Console.WriteLine("Excel.zip 下載完成");
-                    }
-                    else
-                    {
-                        Console.WriteLine("無法下載 Excel.zip 檔案");
-                    }
+                    byte[] fileBytes = response.RawBytes;
+                    File.WriteAllBytes("Excel.zip", fileBytes);
+                    Console.WriteLine("Excel.zip downloaded successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to download Excel.zip");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"發生異常: {ex.Message}");
+                Console.WriteLine($"An exception occurred: {ex.Message}");
             }
 
             pythonScipt.pythonSciptMain(args);

@@ -6,7 +6,7 @@ namespace mxdat
 {
     public class GetNexonServerjson
     {
-        public static string GetNexonServerjsonMain(string[] args)
+        public static async Task<string> GetNexonServerjsonMain(string[] args)
         {
             var client = new RestClient("https://api-pub.nexon.com/patch/v1.1/version-check");
             var request = new RestRequest();
@@ -46,9 +46,12 @@ namespace mxdat
             // 將 response 內容寫入到檔案中
             File.WriteAllText("resource.json", response.Content);
 
-            GetExcelzip.GetExcelzipMain(args);
+            
 
-            return response.Content;
+            // 呼叫 GetExcelzip.GetExcelzipMain 方法
+            GetExcelzip.GetExcelzipMain(args);
+            
+            return "" ;
         }
     }
 }

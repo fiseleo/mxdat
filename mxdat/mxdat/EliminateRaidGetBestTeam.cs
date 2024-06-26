@@ -10,6 +10,7 @@ namespace mxdat
         public static void EliminateRaidGetBestTeamMain(string[] args)
         {
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidGetBestTeam");
+            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
 
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -22,14 +23,20 @@ namespace mxdat
             }
 
             PacketCryptManager Instance = new PacketCryptManager();
-            Console.WriteLine("Please enter Hash:");
-            long hash = long.Parse(Console.ReadLine());
-            Console.WriteLine("Please enter MxToken:");
-            string mxtoken = Console.ReadLine();
-            Console.WriteLine("Please enter AccountServer:");
-            int AccountServerId = int.Parse(Console.ReadLine());
-            Console.WriteLine("Please enter AccountId:");
-            int AccountId = int.Parse(Console.ReadLine());
+
+            long hash = 114;
+            long AccountServerId = 1;
+            long AccountId = 1;
+
+            static string ExtractMxToken(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string mxToken = jsonObject["SessionKey"]["MxToken"].ToString();
+                return mxToken;
+            }
+            string mxToken = ExtractMxToken(mxdatjson);
+
 
             string baseJson = "{{\"Protocol\": 45003, " +
                 "\"SearchAccountId\": {0}, " +
@@ -63,7 +70,7 @@ namespace mxdat
 
                     long adjustedHash = hash + rank;
 
-                    string json = string.Format(baseJson, SearchAccountId, hash, mxtoken, AccountServerId, AccountId);
+                    string json = string.Format(baseJson, SearchAccountId, hash, mxToken, AccountServerId, AccountId);
                     byte[] mx = Instance.RequestToBinary(Protocol.EliminateRaid_GetBestTeam, json);
                     string filePath = "mx.dat";
                     File.WriteAllBytes(filePath, mx);

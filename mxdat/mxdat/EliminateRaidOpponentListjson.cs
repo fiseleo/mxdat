@@ -64,6 +64,8 @@ namespace mxdat
 
             Console.WriteLine($"Successfully combined all JSON file data and wrote to {nestedDataFileName}.json");
             ExtractAccountIdAndNickname(jsonFolderPath, dateTimeFormat);
+            EliminateRaidOpponentList.shouldContinue = true;
+            EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
         }
         
         private static int GetFileNumber(string filePath)

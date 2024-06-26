@@ -49,7 +49,8 @@ namespace mxdat
                         Console.WriteLine(result);
                     }
                 }
-                main.Main(args);
+                
+                Getlist.GetlistMain(args);
             }
             catch (Exception ex)
             {
