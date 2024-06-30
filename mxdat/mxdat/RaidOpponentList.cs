@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 namespace mxdat
 {
     public class RaidOpponentList
+
     {
         public static bool shouldContinue = false; // New flag variable
         public static DateTime nextStartTime; // New variable to store the next start time
@@ -16,7 +17,7 @@ namespace mxdat
             {
                 shouldContinue = false;
                 Console.WriteLine("Returning from RaidOpponentListjson, continuing to execute RaidOpponentList");
-                Thread.Sleep(900000); // Pause for 15 minutes
+                Thread.Sleep(300000); // Pause for 15 minutes
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate);
             }
             else
@@ -53,7 +54,7 @@ namespace mxdat
 
             string mxToken = ExtractMxToken(mxdatjson);
 
-            long hash = 193286413221927;
+            long hash =  73083163508766;
             long accountServerId = 18152959;
             long accountId = 18152959;
 
@@ -108,7 +109,7 @@ namespace mxdat
                         continue;
                     }
 
-                    if (rankValue == 50026)
+                    if (!finalResponse.Content.Contains("OpponentUserDBs"))
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
@@ -145,7 +146,7 @@ namespace mxdat
 
                 // Normal loop logic
                 string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
-                Console.WriteLine(json);
+                Console.WriteLine($"査排名{rankValue}中...");
 
                 byte[] mx = instance.RequestToBinary(Protocol.Raid_OpponentList, json);
                 string filePath = "mx.dat";
@@ -175,7 +176,7 @@ namespace mxdat
                     continue;
                 }
 
-                if (rankValue == 50026)
+                if (!response.Content.Contains("OpponentUserDBs"))
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
@@ -189,7 +190,7 @@ namespace mxdat
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(1000); // Wait 1 second before the next iteration
+                Thread.Sleep(900); // Wait 900ms second before the next iteration
             }
         }
 

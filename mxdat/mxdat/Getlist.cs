@@ -132,10 +132,10 @@ namespace mxdat
                 else
                 {
                     Console.WriteLine("沒有開放。");
-                    RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
-
-                    //Thread.Sleep(60000); 
-                    //GetClosestSeason();
+                    RaidGetBestTeam.RaidGetBestTeamMain(args);
+                    //RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
+                    Thread.Sleep(6000); 
+                    GetClosestSeason();
                 }
             }
         }

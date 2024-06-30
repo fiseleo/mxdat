@@ -62,7 +62,7 @@ namespace mxdat
                     int rank = opponent.Value<int>("Rank");
 
                     // If rank is 10000, stop processing
-                    if (rank == 10000)
+                    if (rank == 10001)
                     {
                         Console.WriteLine("Rank is 10000, stopping the process.");
                         break;
@@ -100,7 +100,7 @@ namespace mxdat
                     }
                     string responseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidGetBest{SearchAccountId}.json");
                     File.WriteAllText(responseFilePath, response.Content);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
                     
                 }
             }

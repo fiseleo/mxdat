@@ -25,12 +25,12 @@ namespace mxdat
 
 
 
-            Console.WriteLine("Compress()得到:");
-            foreach (byte b in compressedData)
-            {
-                Console.Write(b.ToString("X2") + " ");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("Compress()得到:");
+            //foreach (byte b in compressedData)
+            //{
+                //Console.Write(b.ToString("X2") + " ");
+            //}
+            //Console.WriteLine();
 
 
 
@@ -38,12 +38,12 @@ namespace mxdat
 
 
 
-            Console.WriteLine("Encypt()得到:");
-            foreach (byte b in compressedData)
-            {
-                Console.Write(b.ToString("X2") + " ");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("Encypt()得到:");
+            //foreach (byte b in compressedData)
+            //{
+                //Console.Write(b.ToString("X2") + " ");
+            //}
+            //Console.WriteLine();
 
 
 
@@ -59,12 +59,12 @@ namespace mxdat
 
 
 
-                    Console.WriteLine("crc值为" + crc);
-                    foreach (byte b in BitConverter.GetBytes(crc))
-                    {
-                        Console.Write(b.ToString("X2") + " ");
-                    }
-                    Console.WriteLine();
+                    //Console.WriteLine("crc值为" + crc);
+                    //foreach (byte b in BitConverter.GetBytes(crc))
+                    //{
+                        //Console.Write(b.ToString("X2") + " ");
+                    //}
+                    //Console.WriteLine();
 
 
 
@@ -72,12 +72,12 @@ namespace mxdat
 
 
 
-                    Console.WriteLine("protocolConverter值为" + protocolConverter);
-                    foreach (byte b in BitConverter.GetBytes(protocolConverter))
-                    {
-                        Console.Write(b.ToString("X2") + " ");
-                    }
-                    Console.WriteLine();
+                    //onsole.WriteLine("protocolConverter值为" + protocolConverter);
+                    //foreach (byte b in BitConverter.GetBytes(protocolConverter))
+                    //{
+                        //Console.Write(b.ToString("X2") + " ");
+                    //}
+                    //Console.WriteLine();
 
 
 
@@ -87,11 +87,11 @@ namespace mxdat
                     binaryWriter.Write(compressedData);
                 }
             }
-            foreach (byte b in result)
-            {
-                Console.Write(b.ToString("X2") + " ");
-            }
-            Console.WriteLine();
+            //foreach (byte b in result)
+            //{
+                //Console.Write(b.ToString("X2") + " ");
+            //}
+            //Console.WriteLine();
 
             return result;
 

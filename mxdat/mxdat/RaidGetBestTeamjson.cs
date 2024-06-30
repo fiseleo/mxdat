@@ -53,9 +53,10 @@ namespace mxdat
                 {
                     Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
                 }
-                GetNexonServerjson.GetNexonServerjsonMain(args);
+                
             }
             Getlist.GetClosestSeason();
+            GetNexonServerjson.GetNexonServerjsonMain(args);
         }
 
         private static int GetFileNumber(string filePath)
