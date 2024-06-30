@@ -49,6 +49,7 @@ namespace mxdat
                     Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
                 }
             }
+            Getlist.GetClosestSeason();
         }
         private static int GetFileNumber(string filePath)
         {

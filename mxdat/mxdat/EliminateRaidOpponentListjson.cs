@@ -1,5 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace mxdat
@@ -8,8 +11,7 @@ namespace mxdat
     {
         public static void EliminateRaidOpponentListjsonMain(string[] args)
         {
-
-            // Step 1: Check and create RaidOpponentList directory if not exists
+            // Step 1: Check and create EliminateRaidOpponentList directory if not exists
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -21,12 +23,13 @@ namespace mxdat
                 Console.WriteLine("EliminateRaidOpponentList folder already exists");
             }
 
-            // Step 2: Process all JSON files in RaidOpponentList directory
+            // Step 2: Process all JSON files in EliminateRaidOpponentList directory
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("EliminateRaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
+
             // Initialize a JObject to hold the combined nested JSON data
             JObject combinedData = new JObject();
 
@@ -55,26 +58,27 @@ namespace mxdat
                 }
             }
 
-            // Step 3: Write combinedData to nested_data.json with indented format
-            string dateTimeFormat = DateTime.Now.ToString("yyyyMMddHHmmss");
-            string nestedDataFileName = $"EliminateRaidOpponentList{dateTimeFormat}.json";
+            // Step 3: Write combinedData to EliminateRaidOpponentList.json with indented format
+            string nestedDataFileName = "EliminateRaidOpponentList.json";
             string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
             combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
             File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
 
-            Console.WriteLine($"Successfully combined all JSON file data and wrote to {nestedDataFileName}.json");
-            ExtractAccountIdAndNickname(jsonFolderPath, dateTimeFormat);
+            Console.WriteLine($"Successfully combined all JSON file data and wrote to {nestedDataFileName}");
+            ExtractAccountIdAndNickname(nestedDataPath);
+
+            // Assuming EliminateRaidOpponentList.shouldContinue and EliminateRaidOpponentList.EliminateRaidOpponentListMain are defined elsewhere
             EliminateRaidOpponentList.shouldContinue = true;
-            EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue); // Actual seasonEndData and settlementEndDate should be passed when calling
         }
-        
-        private static int GetFileNumber(string filePath)
+
+        private static long GetFileNumber(string filePath)
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             Match match = Regex.Match(fileName, @"\d+");
             if (match.Success)
             {
-                return int.Parse(match.Value);
+                return long.Parse(match.Value);
             }
             else
             {
@@ -82,12 +86,10 @@ namespace mxdat
             }
         }
 
-        private static void ExtractAccountIdAndNickname(string jsonFolderPath, string dateTimeFormat)
+        private static void ExtractAccountIdAndNickname(string nestedDataPath)
         {
             try
             {
-                string nestedDataFileName = $"EliminateRaidOpponentList{dateTimeFormat}.json";
-                string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
                 string jsonContent = File.ReadAllText(nestedDataPath);
                 JObject nestedData = JObject.Parse(jsonContent);
                 JArray opponents = (JArray)nestedData["OpponentUserDBs"];
@@ -103,14 +105,15 @@ namespace mxdat
                     resultObject["Rank"] = rank;
                     resultArray.Add(resultObject);
                 }
-                string ExtractAccountIdAndNicknamePath = Path.Combine(jsonFolderPath, "EliminateRaidOpponentListUserID&Nickname.json");
-                File.WriteAllText(ExtractAccountIdAndNicknamePath, resultArray.ToString());
-                Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {ExtractAccountIdAndNicknamePath}");
+                string resultFileName = "EliminateRaidOpponentListUserID&Nickname.json";
+                string resultFilePath = Path.Combine(Path.GetDirectoryName(nestedDataPath), resultFileName);
+                File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
+                Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error during processing: {ex.Message}");
             }
         }
-    }    
+    }
 }

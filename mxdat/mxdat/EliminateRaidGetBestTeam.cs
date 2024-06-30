@@ -24,9 +24,9 @@ namespace mxdat
 
             PacketCryptManager Instance = new PacketCryptManager();
 
-            long hash = 114;
-            long AccountServerId = 1;
-            long AccountId = 1;
+            long hash = 193282118254630;
+            long AccountServerId = 18152959;
+            long AccountId = 18152959;
 
             static string ExtractMxToken(string mxdatjson)
             {
@@ -40,7 +40,7 @@ namespace mxdat
 
             string baseJson = "{{\"Protocol\": 45003, " +
                 "\"SearchAccountId\": {0}, " +
-                "\"ClientUpTime\": 4, " +
+                "\"ClientUpTime\": 25, " +
                 "\"Resendable\": true, " +
                 "\"Hash\": {1}, " +      // input Hash
                 "\"IsTest\": false, " +

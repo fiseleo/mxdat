@@ -34,9 +34,9 @@ namespace mxdat
 
             PacketCryptManager Instance = new PacketCryptManager();
 
-            long hash = 114;
-            long AccountServerId = 1;
-            long AccountId = 1;
+            long hash = 73100343377952;
+            long AccountServerId = 18152959;
+            long AccountId = 18152959;
 
 
             string baseJson = "{{\"Protocol\": 17020, " +

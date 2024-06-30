@@ -55,6 +55,7 @@ namespace mxdat
                 }
                 GetNexonServerjson.GetNexonServerjsonMain(args);
             }
+            Getlist.GetClosestSeason();
         }
 
         private static int GetFileNumber(string filePath)
