@@ -2,30 +2,33 @@ using mxdat.NetworkProtocol;
 using RestSharp;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace mxdat
 {
     public class EliminateRaidOpponentList
     {
         public static bool shouldContinue = false; // New flag variable
-        public static DateTime nextStartTime; // New variable to store the next start time
+        public static int savedRankValue = 0; // Save rank value before pausing
 
         public static void EliminateRaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
+
+            Console.OutputEncoding = Encoding.UTF8;
+
             if (shouldContinue)
             {
                 shouldContinue = false;
-                Console.WriteLine("Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList");
-                Thread.Sleep(900000); // Pause for 15 minutes
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate);
+                Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else
             {
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate);
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1); // Start with rank value 1
             }
         }
 
-        private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
+        private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
         {
             string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
@@ -41,7 +44,6 @@ namespace mxdat
             }
 
             PacketCryptManager instance = new PacketCryptManager();
-            int rankValue = 1;
 
             static string ExtractMxToken(string mxdatjson)
             {
@@ -74,6 +76,15 @@ namespace mxdat
 
             while (true)
             {
+                if (rankValue == 50026)
+                {
+                    Console.WriteLine($"Pausing execution at rankValue {rankValue} to run EliminateRaidOpponentListjson");
+                    savedRankValue = rankValue + 15;
+                    shouldContinue = true;
+                    EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
+                    return; // Stop the current method execution
+                }
+
                 DateTime now = DateTime.Now;
                 if (now >= seasonEndData && now <= settlementEndDate)
                 {
@@ -134,10 +145,6 @@ namespace mxdat
                     // Continue loop
                     rankValue = 1;
                     hash++;
-                    nextStartTime = DateTime.Now.AddMinutes(15); // Set the next start time
-                    Console.WriteLine($"Next start time: {nextStartTime}");
-
-                    // Execute Decryptmxdat logic
                     Thread.Sleep(900000); // Pause for 15 minutes
                     Decryptmxdat.DecryptMain(args);
                     continue;
@@ -189,7 +196,7 @@ namespace mxdat
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(900); // Wait 1 second before the next iteration
+                Thread.Sleep(900); // Wait 900ms before the next iteration
             }
         }
 

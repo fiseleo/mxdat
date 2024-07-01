@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace mxdat
 {
@@ -80,7 +82,7 @@ namespace mxdat
             var now = DateTime.Now;
             SeasonData closestSeason = null;
             TimeSpan minTimeSpan = TimeSpan.MaxValue;
-            
+
             foreach (var season in combinedSeasons)
             {
                 var timeSpan = (season.SeasonStartData - now).Duration();
@@ -102,7 +104,7 @@ namespace mxdat
                 var now = DateTime.Now;
 
                 // Output the closest OpenRaidBossGroup to the Console if the start date is today
-                if (closestSeason != null && (closestSeason.SeasonStartData - now).Days == 0)
+                if (closestSeason != null && closestSeason.SeasonStartData.Date == now.Date)
                 {
                     if (closestSeason.OpenRaidBossGroup != null && closestSeason.OpenRaidBossGroup.Count > 0)
                     {
@@ -132,10 +134,8 @@ namespace mxdat
                 else
                 {
                     Console.WriteLine("沒有開放。");
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
-                    //RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
-                    Thread.Sleep(6000); 
-                    GetClosestSeason();
+                    Thread.Sleep(600000); 
+                    GetNexonServerjson.GetNexonServerjsonMain(args);
                 }
             }
         }
