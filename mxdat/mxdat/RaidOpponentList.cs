@@ -85,7 +85,7 @@ namespace mxdat
                 }
 
                 DateTime now = DateTime.Now;
-                if (now >= seasonEndData && now <= settlementEndDate)
+                if (now.Date == seasonEndData.Date && now.Date == settlementEndDate.Date && now.TimeOfDay >= seasonEndData.TimeOfDay && now.TimeOfDay <= settlementEndDate.TimeOfDay)
                 {
                     // Final loop
                     Console.WriteLine("This is the final loop");
@@ -202,8 +202,12 @@ namespace mxdat
         private static TimeSpan CalculateTimeToWait()
         {
             DateTime now = DateTime.Now;
-            DateTime nextDay3AM = now.Date.AddDays(1).AddHours(3);
-            return nextDay3AM - now;
+            DateTime today3AM = now.Date.AddHours(3);
+            if (now < today3AM)
+            {
+                today3AM = today3AM.AddDays(1); // 如果現在時間已經超過當天的凌晨3點，則計算到下一天凌晨3點的時間
+            }
+            return today3AM - now;
         }
     }
 }

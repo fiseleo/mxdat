@@ -103,8 +103,8 @@ namespace mxdat
                 var closestSeason = GetClosestSeason();
                 var now = DateTime.Now;
 
-                // Output the closest OpenRaidBossGroup to the Console if the start date is today
-                if (closestSeason != null && closestSeason.SeasonStartData.Date == now.Date)
+                // Output the closest OpenRaidBossGroup to the Console if the start date and time is now
+                if (closestSeason != null && closestSeason.SeasonStartData.Date == now.Date && closestSeason.SeasonStartData.Hour == now.Hour && closestSeason.SeasonStartData.Minute == now.Minute)
                 {
                     if (closestSeason.OpenRaidBossGroup != null && closestSeason.OpenRaidBossGroup.Count > 0)
                     {
@@ -134,8 +134,8 @@ namespace mxdat
                 else
                 {
                     Console.WriteLine("沒有開放。");
-                    Thread.Sleep(600000); 
-                    GetNexonServerjson.GetNexonServerjsonMain(args);
+                    Thread.Sleep(60000); // Sleep for 1 minute
+                    Decryptmxdat.DecryptMain(args);
                 }
             }
         }
