@@ -19,6 +19,7 @@ namespace mxdat
             {
                 shouldContinue = false;
                 Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
+                savedRankValue = 1;
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else
