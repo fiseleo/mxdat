@@ -81,7 +81,7 @@ namespace mxdat
                 if (rankValue == 50026)
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
-                    savedRankValue = rankValue + 15;
+                    savedRankValue = rankValue + 30;
                     shouldContinue = true;
                     RaidOpponentListjson.RaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
@@ -198,7 +198,7 @@ namespace mxdat
                 string responseFilePath = Path.Combine(jsonFolderPath, $"RaidOpponentList{rankValue}.json");
                 File.WriteAllText(responseFilePath, response.Content);
 
-                rankValue = rankValue + 15;
+                rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
                 Thread.Sleep(900); // Wait 900ms before the next iteration
             }
