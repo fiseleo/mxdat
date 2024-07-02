@@ -9,7 +9,8 @@ namespace mxdat
     public class RaidOpponentList
     {
         public static bool shouldContinue = false; // New flag variable
-        public static int savedRankValue = 0; // Save rank value before pausing
+        public static int savedRankValue = 1; // Save rank value before pausing
+
 
         public static void RaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
@@ -21,7 +22,6 @@ namespace mxdat
                 Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
-                savedRankValue = 1;
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else
@@ -78,7 +78,7 @@ namespace mxdat
 
             while (true)
             {
-                if (rankValue == 50026)
+                if (rankValue == 50056)
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
                     savedRankValue = rankValue + 30;

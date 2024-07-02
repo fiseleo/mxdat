@@ -1,9 +1,11 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace mxdat
 {
@@ -11,6 +13,9 @@ namespace mxdat
     {
         public static void RaidOpponentListjsonMain(string[] args)
         {
+            // 检查当前时间并根据需要暂停程序
+            CheckAndPauseAt3AM();
+
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -21,7 +26,6 @@ namespace mxdat
             {
                 Console.WriteLine("RaidOpponentList folder already exists");
             }
-
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
@@ -61,9 +65,9 @@ namespace mxdat
 
             ProcessRaidOpponentListData(nestedDataPath);
 
-            // After completion, return to RaidOpponentListMain method
+            // 完成后返回RaidOpponentListMain方法
             RaidOpponentList.shouldContinue = true;
-            RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue); // Actual seasonEndData and settlementEndDate should be passed when calling
+            RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue); // 实际seasonEndData和settlementEndDate应在调用时传递
         }
 
         private static long GetFileNumber(string filePath)
@@ -72,7 +76,7 @@ namespace mxdat
             Match match = Regex.Match(fileName, @"\d+");
             if (match.Success)
             {
-                return long.Parse(match.Value); // Changed from int to long
+                return long.Parse(match.Value); // 从int改为long
             }
             else
             {
@@ -118,9 +122,9 @@ namespace mxdat
                 {
                     try
                     {
-                        long accountId = opponent.Value<long>("AccountId"); // Ensure long type for large AccountId values
+                        long accountId = opponent.Value<long>("AccountId"); // 确保AccountId为long类型
                         string nickname = opponent.Value<string>("Nickname");
-                        int rank = opponent.Value<int>("Rank"); // Ensure rank is within Int32 range
+                        int rank = opponent.Value<int>("Rank"); // 确保rank在Int32范围内
                         JObject resultObject = new JObject();
                         resultObject["AccountId"] = accountId;
                         resultObject["Nickname"] = nickname;
@@ -141,6 +145,32 @@ namespace mxdat
             {
                 Console.WriteLine($"Error occurred during processing: {ex.Message}");
             }
+        }
+
+        private static void CheckAndPauseAt3AM()
+        {
+            DateTime now = DateTime.Now;
+            DateTime today3AM = now.Date.AddHours(3);
+            if (now > today3AM)
+            {
+                today3AM = today3AM.AddDays(1); 
+            }
+
+            TimeSpan timeTo3AM = today3AM - now;
+            if (timeTo3AM.TotalMinutes <= 15)
+            {
+                Console.WriteLine("接近凌晨3点，暂停程序15分钟...");
+                Thread.Sleep(TimeSpan.FromMinutes(15));
+                ExecuteDecryptmxdat();
+            }
+        }
+
+        private static void ExecuteDecryptmxdat()
+        {
+            
+            Console.WriteLine("Running Decryptmxdat...");
+            string[] emptyArgs = new string[0];
+            Decryptmxdat.DecryptMain(emptyArgs);
         }
     }
 }
