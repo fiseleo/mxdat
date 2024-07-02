@@ -194,7 +194,7 @@ namespace mxdat
                 string responseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidOpponentList{rankValue}.json");
                 File.WriteAllText(responseFilePath, response.Content);
 
-                rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
+                rankValue = rankValue + 15;
                 hash++;
                 Thread.Sleep(900); // Wait 900ms before the next iteration
             }
