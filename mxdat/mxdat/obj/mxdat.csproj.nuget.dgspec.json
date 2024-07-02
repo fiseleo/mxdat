@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {}
+    "C:\\Users\\aaaa5\\OneDrive\\桌面\\1\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {}
   },
   "projects": {
-    "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {
+    "C:\\Users\\aaaa5\\OneDrive\\桌面\\1\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
+        "projectUniqueName": "C:\\Users\\aaaa5\\OneDrive\\桌面\\1\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
         "projectName": "mxdat",
-        "projectPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
-        "packagesPath": "C:\\Users\\1100853\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\1100853\\Desktop\\bot\\mxdat\\mxdat\\mxdat\\obj\\",
+        "projectPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\1\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
+        "packagesPath": "C:\\Users\\aaaa5\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\1\\mxdat\\mxdat\\mxdat\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\1100853\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\aaaa5\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -80,7 +80,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.206/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
