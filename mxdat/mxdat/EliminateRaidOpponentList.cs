@@ -21,6 +21,8 @@ namespace mxdat
                 shouldContinue = false;
                 Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
                 savedRankValue = 1;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else
@@ -141,6 +143,8 @@ namespace mxdat
                     // Pause until 3:00 AM the next day
                     TimeSpan timeToWait = CalculateTimeToWait();
                     Console.WriteLine($"Pausing for {timeToWait.TotalMinutes} minutes");
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                     Thread.Sleep((int)timeToWait.TotalMilliseconds);
 
                     // Continue loop
