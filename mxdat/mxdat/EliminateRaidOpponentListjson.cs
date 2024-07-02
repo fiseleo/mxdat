@@ -34,8 +34,11 @@ namespace mxdat
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            // Initialize a JObject to hold the combined nested JSON data
-            JObject combinedData = new JObject();
+            string nestedDataFileName = "EliminateRaidOpponentList.json";
+            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
+
+            // 清空或创建目标文件
+            File.WriteAllText(nestedDataPath, string.Empty);
 
             foreach (string file in jsonFiles)
             {
@@ -48,12 +51,9 @@ namespace mxdat
                     string nestedJsonStr = jsonData["packet"].ToString();
                     JObject nestedData = JObject.Parse(nestedJsonStr);
 
-                    combinedData.Merge(nestedData, new JsonMergeSettings
-                    {
-                        MergeArrayHandling = MergeArrayHandling.Union
-                    });
+                    AppendToFile(nestedDataPath, nestedData);
 
-                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to combinedData.");
+                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to {nestedDataFileName}.");
                 }
                 catch (Exception ex)
                 {
@@ -61,14 +61,27 @@ namespace mxdat
                 }
             }
 
-            // Write the combined data to a new JSON file
-            string nestedDataFileName = "EliminateRaidOpponentList.json";
-            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
-            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
-            File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
+            // 在最终文件中添加时间戳
+            string finalContent = File.ReadAllText(nestedDataPath);
+            JObject finalData = JObject.Parse(finalContent);
+            finalData["timestamp"] = DateTime.UtcNow.ToString("o");
+            File.WriteAllText(nestedDataPath, finalData.ToString(Formatting.Indented));
             Console.WriteLine($"Successfully merged all JSON file data and wrote to {nestedDataFileName}");
 
             ProcessEliminateRaidOpponentListData(nestedDataPath);
+        }
+
+        private static void AppendToFile(string filePath, JObject data)
+        {
+            string existingContent = File.ReadAllText(filePath);
+            JObject existingData = string.IsNullOrWhiteSpace(existingContent) ? new JObject() : JObject.Parse(existingContent);
+
+            existingData.Merge(data, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Union
+            });
+
+            File.WriteAllText(filePath, existingData.ToString(Formatting.Indented));
         }
 
         private static long GetFileNumber(string filePath)
