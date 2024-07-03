@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace mxdat
 {
@@ -38,9 +39,10 @@ namespace mxdat
             string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
 
             // 清空或创建目标文件
-            File.WriteAllText(nestedDataPath, string.Empty);
+            File.WriteAllText(nestedDataPath, "{}");
 
-            foreach (string file in jsonFiles)
+            // 使用并行处理来加快速度
+            Parallel.ForEach(jsonFiles, file =>
             {
                 try
                 {
@@ -59,7 +61,7 @@ namespace mxdat
                 {
                     Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
                 }
-            }
+            });
 
             // 在最终文件中添加时间戳
             string finalContent = File.ReadAllText(nestedDataPath);
@@ -73,15 +75,18 @@ namespace mxdat
 
         private static void AppendToFile(string filePath, JObject data)
         {
-            string existingContent = File.ReadAllText(filePath);
-            JObject existingData = string.IsNullOrWhiteSpace(existingContent) ? new JObject() : JObject.Parse(existingContent);
-
-            existingData.Merge(data, new JsonMergeSettings
+            lock (filePath)
             {
-                MergeArrayHandling = MergeArrayHandling.Union
-            });
+                string existingContent = File.ReadAllText(filePath);
+                JObject existingData = string.IsNullOrWhiteSpace(existingContent) ? new JObject() : JObject.Parse(existingContent);
 
-            File.WriteAllText(filePath, existingData.ToString(Formatting.Indented));
+                existingData.Merge(data, new JsonMergeSettings
+                {
+                    MergeArrayHandling = MergeArrayHandling.Union
+                });
+
+                File.WriteAllText(filePath, existingData.ToString(Formatting.Indented));
+            }
         }
 
         private static long GetFileNumber(string filePath)

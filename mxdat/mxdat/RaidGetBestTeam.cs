@@ -30,13 +30,30 @@ namespace mxdat
                 return mxToken;
             }
 
+
+            static string ExtractAccountId(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string accountId = jsonObject["AccountId"].ToString();
+                return accountId;
+            }
+
+            static string ExtractAccountServerId(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string accountServerId = jsonObject["SessionKey"]["AccountServerId"].ToString();
+                return accountServerId;
+            }
+
             string mxtoken = ExtractMxToken(mxdatjson);
 
             PacketCryptManager Instance = new PacketCryptManager();
 
             long hash = 73100343377952;
-            long AccountServerId = 18152959;
-            long AccountId = 18152959;
+            string accountServerId = ExtractAccountId(mxdatjson);
+            string accountId = ExtractAccountServerId(mxdatjson);
 
 
             string baseJson = "{{\"Protocol\": 17020, " +
@@ -72,7 +89,7 @@ namespace mxdat
 
                     long adjustedHash = hash + rank; // Adjust hash with rank
 
-                    string json = string.Format(baseJson, SearchAccountId, adjustedHash, mxtoken, AccountServerId, AccountId);
+                    string json = string.Format(baseJson, SearchAccountId, adjustedHash, mxtoken, accountServerId, accountId);
                     byte[] mx = Instance.RequestToBinary(Protocol.Raid_GetBestTeam, json);
                     string filePath = "mx.dat";
                     File.WriteAllBytes(filePath, mx);

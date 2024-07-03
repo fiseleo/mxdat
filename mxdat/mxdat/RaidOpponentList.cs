@@ -20,8 +20,6 @@ namespace mxdat
             {
                 shouldContinue = false;
                 Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else
@@ -55,11 +53,30 @@ namespace mxdat
                 return mxToken;
             }
 
+
+            static string ExtractAccountId(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string accountId = jsonObject["AccountId"].ToString();
+                return accountId;
+            }
+
+            static string ExtractAccountServerId(string mxdatjson)
+            {
+                string jsonData = File.ReadAllText(mxdatjson);
+                JObject jsonObject = JObject.Parse(jsonData);
+                string accountServerId = jsonObject["SessionKey"]["AccountServerId"].ToString();
+                return accountServerId;
+            }
+
+
+
             string mxToken = ExtractMxToken(mxdatjson);
 
             long hash =  73083163508766;
-            long accountServerId = 18152959;
-            long accountId = 18152959;
+            string accountServerId = ExtractAccountId(mxdatjson);
+            string accountId = ExtractAccountServerId(mxdatjson);
 
             string baseJson = "{{\"Protocol\": 17016, " +
                               "\"Rank\": {0}, " +
@@ -142,8 +159,7 @@ namespace mxdat
                     // Pause until 3:00 AM the next day
                     TimeSpan timeToWait = CalculateTimeToWait();
                     Console.WriteLine($"Pausing for {timeToWait.TotalMinutes} minutes");
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers(); // Forcing garbage collection
+                     // Forcing garbage collection
                     Thread.Sleep((int)timeToWait.TotalMilliseconds);
 
                     // Continue loop
@@ -201,6 +217,8 @@ namespace mxdat
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
                 Thread.Sleep(900); // Wait 900ms before the next iteration
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
 
