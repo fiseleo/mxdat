@@ -168,7 +168,7 @@ namespace mxdat
         private static void ExecuteDecryptmxdat()
         {
             
-            Console.WriteLine("执行Decryptmxdat...");
+            Console.WriteLine("running Decryptmxdat...");
             string[] emptyArgs = new string[0];
             Decryptmxdat.DecryptMain(emptyArgs);
         }

@@ -141,6 +141,7 @@ namespace mxdat
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
+                        rankValue = 1; // Reset rank value
                         shouldContinue = true; // Set flag variable
                         EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
                         return; // Stop the current method execution
@@ -204,6 +205,7 @@ namespace mxdat
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
+                    rankValue = 1 ; // Reset rank value
                     shouldContinue = true; // Set flag variable
                     EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
