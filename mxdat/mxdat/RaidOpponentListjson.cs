@@ -1,11 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Data;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace mxdat
 {
@@ -66,8 +62,17 @@ namespace mxdat
             ProcessRaidOpponentListData(nestedDataPath);
 
             // 完成后返回RaidOpponentListMain方法
-            RaidOpponentList.shouldContinue = true;
-            RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue); // 实际seasonEndData和settlementEndDate应在调用时传递
+            if (RaidOpponentList.isfinishloop)
+            {
+                RaidOpponentList.shouldContinue = false;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
+            else
+            {
+                RaidOpponentList.shouldContinue = true;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+
+            } 
         }
 
         private static long GetFileNumber(string filePath)
@@ -159,8 +164,8 @@ namespace mxdat
             TimeSpan timeTo3AM = today3AM - now;
             if (timeTo3AM.TotalMinutes <= 15)
             {
-                Console.WriteLine("接近凌晨3点，暂停程序15分钟...");
-                Thread.Sleep(TimeSpan.FromMinutes(15));
+                Console.WriteLine("接近凌晨3点，暂停程序60分钟...");
+                Thread.Sleep(TimeSpan.FromMinutes(60));
                 ExecuteDecryptmxdat();
             }
         }

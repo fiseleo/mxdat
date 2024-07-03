@@ -153,8 +153,8 @@ namespace mxdat
             TimeSpan timeTo3AM = today3AM - now;
             if (timeTo3AM.TotalMinutes <= 15)
             {
-                Console.WriteLine("接近凌晨3点，暂停程序15分钟...");
-                Thread.Sleep(TimeSpan.FromMinutes(15));
+                Console.WriteLine("接近凌晨3点，暂停程序60分钟...");
+                Thread.Sleep(TimeSpan.FromMinutes(60));
                 ExecuteDecryptmxdat();
             }
         }

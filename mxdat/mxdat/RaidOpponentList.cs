@@ -11,6 +11,10 @@ namespace mxdat
         public static bool shouldContinue = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
 
+        public static int rankValue = 1;
+
+        public static bool isfinishloop = false;
+
 
         public static void RaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
@@ -19,12 +23,20 @@ namespace mxdat
             if (shouldContinue)
             {
                 shouldContinue = false;
+                Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue 1");
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1); // Resume with saved rank value
+            }
+            else if (isfinishloop)
+            {
+                isfinishloop = false;
+                
                 Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
+
             }
             else
             {
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1); // Start with rank value 1
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
             }
         }
 
@@ -98,8 +110,8 @@ namespace mxdat
                 if (rankValue == 50056)
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
-                    savedRankValue = rankValue + 30;
-                    shouldContinue = true;
+                    savedRankValue = rankValue - 1;
+                    isfinishloop = true;
                     RaidOpponentListjson.RaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
                 }
@@ -142,8 +154,8 @@ namespace mxdat
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
-                        rankValue = 1;
                         shouldContinue = true; // Set flag variable
+                        isfinishloop = false;
                         RaidOpponentListjson.RaidOpponentListjsonMain(args);
                         return; // Stop the current method execution
                     }
@@ -166,7 +178,7 @@ namespace mxdat
                     // Continue loop
                     rankValue = 1;
                     hash++;
-                    Thread.Sleep(900000); // Pause for 15 minutes
+                    Thread.Sleep(3600000);// Pause for 15 minutes
                     Decryptmxdat.DecryptMain(args);
                     continue;
                 }
@@ -207,8 +219,8 @@ namespace mxdat
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
-                    rankValue = 1;
                     shouldContinue = true; // Set flag variable
+                    isfinishloop = false;
                     RaidOpponentListjson.RaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
                 }

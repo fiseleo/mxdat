@@ -9,7 +9,11 @@ namespace mxdat
     public class EliminateRaidOpponentList
     {
         public static bool shouldContinue = false; // New flag variable
+
+        public static bool isfinishloop = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
+
+        public static int rankValue = 1;
 
         public static void EliminateRaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
@@ -22,9 +26,17 @@ namespace mxdat
                 Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
+            else if (isfinishloop)
+            {
+                isfinishloop = false;
+                
+                Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
+
+            }
             else
             {
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1); // Start with rank value 1
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
             }
         }
 
@@ -98,7 +110,7 @@ namespace mxdat
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run EliminateRaidOpponentListjson");
                     savedRankValue = rankValue + 15;
-                    shouldContinue = true;
+                    isfinishloop = true;
                     EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
                 }
@@ -141,8 +153,8 @@ namespace mxdat
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
-                        rankValue = 1; // Reset rank value
                         shouldContinue = true; // Set flag variable
+                        isfinishloop = false;
                         EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
                         return; // Stop the current method execution
                     }
@@ -164,7 +176,7 @@ namespace mxdat
                     // Continue loop
                     rankValue = 1;
                     hash++;
-                    Thread.Sleep(900000); // Pause for 15 minutes
+                    Thread.Sleep(3600000); // Pause for 15 minutes
                     Decryptmxdat.DecryptMain(args);
                     continue;
                 }
@@ -205,8 +217,8 @@ namespace mxdat
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
-                    rankValue = 1 ; // Reset rank value
                     shouldContinue = true; // Set flag variable
+                    isfinishloop = false;
                     EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
                 }
