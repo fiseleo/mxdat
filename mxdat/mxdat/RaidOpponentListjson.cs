@@ -1,7 +1,11 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Data;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
-
+using System.Threading;
 
 namespace mxdat
 {
@@ -22,20 +26,15 @@ namespace mxdat
             {
                 Console.WriteLine("RaidOpponentList folder already exists");
             }
-
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            string nestedDataFileName = "RaidOpponentList.json";
-            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
+            JObject combinedData = new JObject();
 
-            // 清空或创建目标文件
-            File.WriteAllText(nestedDataPath, "{}");
-
-            Parallel.ForEach(jsonFiles, file =>
+            foreach (string file in jsonFiles)
             {
                 try
                 {
@@ -45,21 +44,23 @@ namespace mxdat
                     string nestedJsonStr = jsonData["packet"].ToString();
                     JObject nestedData = JObject.Parse(nestedJsonStr);
 
-                    AppendToFile(nestedDataPath, nestedData);
-                    
-                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to {nestedDataFileName}.");
+                    combinedData.Merge(nestedData, new JsonMergeSettings
+                    {
+                        MergeArrayHandling = MergeArrayHandling.Union
+                    });
+
+                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to combinedData.");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
                 }
-            });
+            }
 
-            // 在最终文件中添加时间戳
-            string finalContent = File.ReadAllText(nestedDataPath);
-            JObject finalData = JObject.Parse(finalContent);
-            finalData["timestamp"] = DateTime.UtcNow.ToString("o");
-            File.WriteAllText(nestedDataPath, finalData.ToString(Formatting.Indented));
+            string nestedDataFileName = "RaidOpponentList.json";
+            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
+            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
+            File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
             Console.WriteLine($"Successfully merged all JSON file data and wrote to {nestedDataFileName}");
 
             ProcessRaidOpponentListData(nestedDataPath);
@@ -67,22 +68,6 @@ namespace mxdat
             // 完成后返回RaidOpponentListMain方法
             RaidOpponentList.shouldContinue = true;
             RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue); // 实际seasonEndData和settlementEndDate应在调用时传递
-        }
-
-        private static void AppendToFile(string filePath, JObject data)
-        {
-            lock (filePath)
-            {
-                string existingContent = File.ReadAllText(filePath);
-                JObject existingData = string.IsNullOrWhiteSpace(existingContent) ? new JObject() : JObject.Parse(existingContent);
-
-                existingData.Merge(data, new JsonMergeSettings
-                {
-                    MergeArrayHandling = MergeArrayHandling.Union
-                });
-
-                File.WriteAllText(filePath, existingData.ToString(Formatting.Indented));
-            }
         }
 
         private static long GetFileNumber(string filePath)
@@ -168,7 +153,7 @@ namespace mxdat
             DateTime today3AM = now.Date.AddHours(3);
             if (now > today3AM)
             {
-                today3AM = today3AM.AddDays(1); 
+                today3AM = today3AM.AddDays(1); // 计算到下一个凌晨3点的时间
             }
 
             TimeSpan timeTo3AM = today3AM - now;
@@ -182,7 +167,8 @@ namespace mxdat
 
         private static void ExecuteDecryptmxdat()
         {
-            Console.WriteLine("Running Decryptmxdat...");
+            
+            Console.WriteLine("执行Decryptmxdat...");
             string[] emptyArgs = new string[0];
             Decryptmxdat.DecryptMain(emptyArgs);
         }
