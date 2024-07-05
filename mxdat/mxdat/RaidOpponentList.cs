@@ -10,11 +10,10 @@ namespace mxdat
     {
         public static bool shouldContinue = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
-
         public static int rankValue = 1;
-
         public static bool isfinishloop = false;
 
+        public static bool finalloop = false;
 
         public static void RaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
@@ -65,7 +64,6 @@ namespace mxdat
                 return mxToken;
             }
 
-
             static string ExtractAccountId(string mxdatjson)
             {
                 string jsonData = File.ReadAllText(mxdatjson);
@@ -82,10 +80,7 @@ namespace mxdat
                 return accountServerId;
             }
 
-
-
             string mxToken = ExtractMxToken(mxdatjson);
-
             long hash =  73083163508766;
             string accountServerId = ExtractAccountId(mxdatjson);
             string accountId = ExtractAccountServerId(mxdatjson);
@@ -107,7 +102,7 @@ namespace mxdat
 
             while (true)
             {
-                if (rankValue == 50056)
+                if (rankValue == 10036)
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
                     savedRankValue = rankValue - 1;
@@ -154,25 +149,22 @@ namespace mxdat
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
-                        shouldContinue = true; // Set flag variable
-                        isfinishloop = false;
-                        RaidOpponentListjson.RaidOpponentListjsonMain(args);
+                        finalloop = true;
+                        RaidGetBestTeam.RaidGetBestTeamMain(args);
                         return; // Stop the current method execution
                     }
 
                     string finalResponseFilePath = Path.Combine(jsonFolderPath, $"RaidOpponentList{rankValue}.json");
                     File.WriteAllText(finalResponseFilePath, finalResponse.Content);
 
-                    // Execute EliminateRaidOpponentListjson logic
-                    RaidOpponentListjson.RaidOpponentListjsonMain(args);
+                    // Upload the JSON content to the server
+                    UploadJsonToServer(finalResponseFilePath);
 
-                    // Execute EliminateRaidGetBestTeam logic
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
 
                     // Pause until 3:00 AM the next day
                     TimeSpan timeToWait = CalculateTimeToWait();
                     Console.WriteLine($"Pausing for {timeToWait.TotalMinutes} minutes");
-                     // Forcing garbage collection
+                    // Forcing garbage collection
                     Thread.Sleep((int)timeToWait.TotalMilliseconds);
 
                     // Continue loop
@@ -221,12 +213,15 @@ namespace mxdat
                     Console.WriteLine("No player information detected");
                     shouldContinue = true; // Set flag variable
                     isfinishloop = false;
-                    RaidOpponentListjson.RaidOpponentListjsonMain(args);
+                    RaidGetBestTeam.RaidGetBestTeamMain(args);
                     return; // Stop the current method execution
                 }
 
                 string responseFilePath = Path.Combine(jsonFolderPath, $"RaidOpponentList{rankValue}.json");
                 File.WriteAllText(responseFilePath, response.Content);
+
+                // Upload the JSON content to the server
+                UploadJsonToServer(responseFilePath);
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
@@ -236,13 +231,40 @@ namespace mxdat
             }
         }
 
+        private static void UploadJsonToServer(string filePath)
+        {
+            string serverUrl = "http://35.247.55.157:9876";
+            string token = "]4]88Nft9*wn";
+
+            try
+            {
+                string jsonData = File.ReadAllText(filePath);
+                var client = new RestClient(serverUrl);
+                var request = new RestRequest(Method.POST);
+                request.AddParameter("application/json", jsonData, ParameterType.RequestBody);
+                request.AddHeader("Token", token);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("User-Agent", "PostmanRuntime/7.39.0");
+                request.AddHeader("Connection", "keep-alive");
+                request.AddHeader("Accept-Encoding", "gzip, deflate, br");
+
+                IRestResponse response = client.Execute(request);
+                Console.WriteLine($"Uploaded {filePath} to server, response status code: {response.StatusCode}");
+                Console.WriteLine($"Response content: {response.Content}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
+            }
+        }
+
         private static TimeSpan CalculateTimeToWait()
         {
             DateTime now = DateTime.Now;
             DateTime today3AM = now.Date.AddHours(3);
-            if (now < today3AM)
+            if (now >= today3AM)
             {
-                today3AM = today3AM.AddDays(1); // 如果現在時間已經超過當天的凌晨3點，則計算到下一天凌晨3點的時間
+                today3AM = today3AM.AddDays(1); // If the current time is past 3 AM, calculate the time to the next day's 3 AM
             }
             return today3AM - now;
         }

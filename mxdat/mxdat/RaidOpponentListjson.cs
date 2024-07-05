@@ -1,18 +1,15 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace mxdat
 {
     public class RaidOpponentListjson
     {
-        private static string dbPath = "RaidOpponentList.db";
-
         public static void RaidOpponentListjsonMain(string[] args)
         {
             CheckAndPauseAt3AM();
@@ -28,40 +25,52 @@ namespace mxdat
                 Console.WriteLine("RaidOpponentList folder already exists");
             }
 
-            CreateDatabaseAndTable();
-
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            foreach (string file in jsonFiles)
+            Task.Run(async () =>
             {
-                try
-                {
-                    string jsonContent = File.ReadAllText(file);
-                    InsertJsonDataIntoDatabase(jsonContent);
-                    Console.WriteLine($"Inserted contents of {Path.GetFileName(file)} into SQLite database.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error reading or inserting {Path.GetFileName(file)}: {ex.Message}");
-                }
-            }
+                JArray combinedOpponents = new JArray();
 
-            ProcessRaidOpponentListData();
+                foreach (string file in jsonFiles)
+                {
+                    if (Path.GetFileName(file).Equals("RaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Reached RaidOpponentList10006.json, stopping further processing.");
+                        break;
+                    }
 
-            if (RaidOpponentList.isfinishloop)
-            {
-                RaidOpponentList.shouldContinue = false;
-                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
-            }
-            else
-            {
-                RaidOpponentList.shouldContinue = true;
-                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
-            }
+                    try
+                    {
+                        string jsonContent = await File.ReadAllTextAsync(file);
+                        JObject jsonObject = JObject.Parse(jsonContent);
+                        JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
+
+                        combinedOpponents.Merge(opponents);
+                        Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error reading or processing {Path.GetFileName(file)}: {ex.Message}");
+                    }
+                }
+
+                await ProcessAndOutputData(combinedOpponents);
+
+                if (RaidOpponentList.isfinishloop)
+                {
+                    RaidOpponentList.shouldContinue = false;
+                    RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                }
+                else
+                {
+                    RaidOpponentList.shouldContinue = true;
+                    RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                }
+            }).Wait();
         }
 
         private static long GetFileNumber(string filePath)
@@ -78,119 +87,24 @@ namespace mxdat
             }
         }
 
-        private static void CreateDatabaseAndTable()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
-            {
-                conn.Open();
-
-                string createTableQuery = @"CREATE TABLE IF NOT EXISTS RaidOpponentList (
-                                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                JsonData TEXT
-                                            )";
-                using (SQLiteCommand cmd = new SQLiteCommand(createTableQuery, conn))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private static void InsertJsonDataIntoDatabase(string jsonData)
-        {
-            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
-            {
-                conn.Open();
-
-                string insertQuery = "INSERT INTO RaidOpponentList (JsonData) VALUES (@jsonData)";
-                using (SQLiteCommand cmd = new SQLiteCommand(insertQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@jsonData", jsonData);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private static void ProcessRaidOpponentListData()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
-            {
-                conn.Open();
-
-                string selectQuery = "SELECT JsonData FROM RaidOpponentList";
-                using (SQLiteCommand cmd = new SQLiteCommand(selectQuery, conn))
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
-                {
-                    JObject combinedData = new JObject();
-
-                    while (reader.Read())
-                    {
-                        string jsonData = reader.GetString(0);
-                        JObject jsonObject = JObject.Parse(jsonData);
-                        string nestedJsonStr = jsonObject["packet"].ToString();
-                        JObject nestedData = JObject.Parse(nestedJsonStr);
-
-                        combinedData.Merge(nestedData, new JsonMergeSettings
-                        {
-                            MergeArrayHandling = MergeArrayHandling.Union
-                        });
-                    }
-
-                    string nestedDataFileName = "RaidOpponentList.json";
-                    string nestedDataPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", nestedDataFileName);
-                    combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
-                    File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
-                    Console.WriteLine($"Successfully merged all JSON data and wrote to {nestedDataFileName}");
-
-                    ProcessJsonData(nestedDataPath);
-                }
-            }
-        }
-
-        private static void ProcessJsonData(string nestedDataPath)
+        private static async Task ProcessAndOutputData(JArray combinedOpponents)
         {
             try
             {
-                string jsonContent = File.ReadAllText(nestedDataPath);
-                JObject nestedData = JObject.Parse(jsonContent);
-                JArray opponents = (JArray)nestedData["OpponentUserDBs"];
-                foreach (JObject opponent in opponents)
-                {
-                    JObject RaidOpponentListDB = (JObject)opponent["RaidTeamSettingDB"];
-                    RaidOpponentListDB.Remove("MainCharacterDBs");
-                    RaidOpponentListDB.Remove("SupportCharacterDBs");
-                    RaidOpponentListDB.Remove("SkillCardMulliganCharacterIds");
-                    RaidOpponentListDB.Remove("LeaderCharacterUniqueId");
-                }
-                File.WriteAllText(nestedDataPath, nestedData.ToString(Formatting.Indented));
-                Console.WriteLine($"Successfully removed specified JSON data sections from {Path.GetFileName(nestedDataPath)}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error processing {Path.GetFileName(nestedDataPath)}: {ex.Message}");
-            }
-
-            ExtractAccountIdAndNickname(nestedDataPath);
-        }
-
-        private static void ExtractAccountIdAndNickname(string nestedDataPath)
-        {
-            try
-            {
-                string jsonContent = File.ReadAllText(nestedDataPath);
-                JObject nestedData = JObject.Parse(jsonContent);
-                JArray opponents = (JArray)nestedData["OpponentUserDBs"];
                 JArray resultArray = new JArray();
-                foreach (JObject opponent in opponents)
+                foreach (JObject opponent in combinedOpponents)
                 {
                     try
                     {
                         long accountId = opponent.Value<long>("AccountId");
                         string nickname = opponent.Value<string>("Nickname");
                         int rank = opponent.Value<int>("Rank");
-                        JObject resultObject = new JObject();
-                        resultObject["AccountId"] = accountId;
-                        resultObject["Nickname"] = nickname;
-                        resultObject["Rank"] = rank;
+                        JObject resultObject = new JObject
+                        {
+                            ["AccountId"] = accountId,
+                            ["Nickname"] = nickname,
+                            ["Rank"] = rank
+                        };
                         resultArray.Add(resultObject);
                     }
                     catch (Exception ex)
@@ -198,9 +112,10 @@ namespace mxdat
                         Console.WriteLine($"Error processing opponent data: {ex.Message}");
                     }
                 }
+
                 string resultFileName = "RaidOpponentListUserID&Nickname.json";
-                string resultFilePath = Path.Combine(Path.GetDirectoryName(nestedDataPath), resultFileName);
-                File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
+                string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", resultFileName);
+                await File.WriteAllTextAsync(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }
             catch (Exception ex)

@@ -2,6 +2,8 @@ using mxdat.NetworkProtocol;
 using RestSharp;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using System.IO;
+using System;
 
 namespace mxdat
 {
@@ -24,8 +26,6 @@ namespace mxdat
 
             PacketCryptManager Instance = new PacketCryptManager();
 
-            
-
             static string ExtractMxToken(string mxdatjson)
             {
                 string jsonData = File.ReadAllText(mxdatjson);
@@ -33,7 +33,6 @@ namespace mxdat
                 string mxToken = jsonObject["SessionKey"]["MxToken"].ToString();
                 return mxToken;
             }
-
 
             static string ExtractAccountId(string mxdatjson)
             {
@@ -50,11 +49,11 @@ namespace mxdat
                 string accountServerId = jsonObject["SessionKey"]["AccountServerId"].ToString();
                 return accountServerId;
             }
+
             string mxToken = ExtractMxToken(mxdatjson);
             long hash = 193282118254630;
             string accountServerId = ExtractAccountId(mxdatjson);
             string accountId = ExtractAccountServerId(mxdatjson);
-
 
             string baseJson = "{{\"Protocol\": 45003, " +
                 "\"SearchAccountId\": {0}, " +
@@ -62,11 +61,11 @@ namespace mxdat
                 "\"Resendable\": true, " +
                 "\"Hash\": {1}, " +      // input Hash
                 "\"IsTest\": false, " +
-                "\"SessionKey\":{" +
-                    // input SessionKey
-                    "{\"AccountServerId\": {3}, " +
+                "\"SessionKey\":{{" +
+                    "\"AccountServerId\": {3}, " +
                     "\"MxToken\": \"{2}\"}}, " +
                     "\"AccountId\": \"{4}\"}}";
+
             string EliminateRaidFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
             string ExtractAccountIdAndNicknamePath = Path.Combine(EliminateRaidFolderPath, "EliminateRaidOpponentListUserID&Nickname.json");
 
@@ -107,7 +106,6 @@ namespace mxdat
                             Console.WriteLine("Empty response or request failed for AccountId: {0}, retrying...", SearchAccountId);
                             Thread.Sleep(2000);
                             continue;
-
                         }
                     }
                     catch (Exception ex)
@@ -116,10 +114,15 @@ namespace mxdat
                         Thread.Sleep(2000);
                         continue;
                     }
+
                     string responseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidGetBest{SearchAccountId}.json");
                     File.WriteAllText(responseFilePath, response.Content);
+                    Console.WriteLine($"EliminateRaidGetBest{SearchAccountId}.json created");
+
+                    // Upload the JSON content to the server
+                    UploadJsonToServer(responseFilePath);
+
                     Thread.Sleep(100);
-                    
                 }
             }
             catch (Exception ex)
@@ -127,9 +130,50 @@ namespace mxdat
                 Console.WriteLine($"Error reading EliminateRaidOpponentListUserID&Nickname.json: {ex.Message}");
             }
 
-            string[] emptyArgs = new string[0];
-            EliminateRaidGetBestTeamjson.EliminateRaidGetBestTeamjsonMain(emptyArgs);
-        }    
+            if (EliminateRaidOpponentList.shouldContinue)
+            {
+                EliminateRaidOpponentList.isfinishloop = false;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
+            else
+            {
+                EliminateRaidOpponentList.isfinishloop = true;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
 
+            if (EliminateRaidOpponentList.finalloop)
+            {
+                Decryptmxdat.DecryptMain(args);
+                EliminateRaidOpponentList.finalloop = false;
+            }
+
+        }
+
+        private static void UploadJsonToServer(string filePath)
+        {
+            string serverUrl = "http://35.247.55.157:9876";
+            string token = "]4]88Nft9*wn";
+
+            try
+            {
+                string jsonData = File.ReadAllText(filePath);
+                var client = new RestClient(serverUrl);
+                var request = new RestRequest(Method.POST);
+                request.AddParameter("application/json", jsonData, ParameterType.RequestBody);
+                request.AddHeader("Token", token);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("User-Agent", "PostmanRuntime/7.39.0");
+                request.AddHeader("Connection", "keep-alive");
+                request.AddHeader("Accept-Encoding", "gzip, deflate, br");
+
+                IRestResponse response = client.Execute(request);
+                Console.WriteLine($"Uploaded {filePath} to server, response status code: {response.StatusCode}");
+                Console.WriteLine($"Response content: {response.Content}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
+            }
+        }
     }
 }

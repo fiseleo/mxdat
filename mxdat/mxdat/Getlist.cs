@@ -123,6 +123,7 @@ namespace mxdat
                         {
                             Console.WriteLine("Executing RaidOpponentList...");
                             RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
+                            //RaidGetBestTeam.RaidGetBestTeamMain(args);
                         }
                         break;
                     }
