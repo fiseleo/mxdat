@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,6 +11,8 @@ namespace mxdat
 {
     public class EliminateRaidOpponentListjson
     {
+        private static string dbPath = "EliminateRaidOpponentList.db";
+
         public static void EliminateRaidOpponentListjsonMain(string[] args)
         {
             // 检查当前时间并根据需要暂停程序
@@ -27,6 +30,8 @@ namespace mxdat
                 Console.WriteLine("EliminateRaidOpponentList folder already exists");
             }
 
+            CreateDatabaseAndTable();
+
             // Step 2: Process all JSON files in EliminateRaidOpponentList directory
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
@@ -34,41 +39,21 @@ namespace mxdat
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            // Initialize a JObject to hold the combined nested JSON data
-            JObject combinedData = new JObject();
-
             foreach (string file in jsonFiles)
             {
                 try
                 {
                     string jsonContent = File.ReadAllText(file);
-                    JObject jsonData = JObject.Parse(jsonContent);
-
-                    // Assuming each JSON file has a "packet" field containing nested JSON
-                    string nestedJsonStr = jsonData["packet"].ToString();
-                    JObject nestedData = JObject.Parse(nestedJsonStr);
-
-                    combinedData.Merge(nestedData, new JsonMergeSettings
-                    {
-                        MergeArrayHandling = MergeArrayHandling.Union
-                    });
-
-                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to combinedData.");
+                    InsertJsonDataIntoDatabase(jsonContent);
+                    Console.WriteLine($"Inserted contents of {Path.GetFileName(file)} into SQLite database.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
+                    Console.WriteLine($"Error reading or inserting {Path.GetFileName(file)}: {ex.Message}");
                 }
             }
 
-            // Write the combined data to a new JSON file
-            string nestedDataFileName = "EliminateRaidOpponentList.json";
-            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
-            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
-            File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
-            Console.WriteLine($"Successfully merged all JSON file data and wrote to {nestedDataFileName}");
-
-            ProcessEliminateRaidOpponentListData(nestedDataPath);
+            ProcessEliminateRaidOpponentListData();
         }
 
         private static long GetFileNumber(string filePath)
@@ -85,7 +70,75 @@ namespace mxdat
             }
         }
 
-        private static void ProcessEliminateRaidOpponentListData(string nestedDataPath)
+        private static void CreateDatabaseAndTable()
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string createTableQuery = @"CREATE TABLE IF NOT EXISTS EliminateRaidOpponentList (
+                                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                JsonData TEXT
+                                            )";
+                using (SQLiteCommand cmd = new SQLiteCommand(createTableQuery, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void InsertJsonDataIntoDatabase(string jsonData)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string insertQuery = "INSERT INTO EliminateRaidOpponentList (JsonData) VALUES (@jsonData)";
+                using (SQLiteCommand cmd = new SQLiteCommand(insertQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@jsonData", jsonData);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void ProcessEliminateRaidOpponentListData()
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string selectQuery = "SELECT JsonData FROM EliminateRaidOpponentList";
+                using (SQLiteCommand cmd = new SQLiteCommand(selectQuery, conn))
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    JObject combinedData = new JObject();
+
+                    while (reader.Read())
+                    {
+                        string jsonData = reader.GetString(0);
+                        JObject jsonObject = JObject.Parse(jsonData);
+                        string nestedJsonStr = jsonObject["packet"].ToString();
+                        JObject nestedData = JObject.Parse(nestedJsonStr);
+
+                        combinedData.Merge(nestedData, new JsonMergeSettings
+                        {
+                            MergeArrayHandling = MergeArrayHandling.Union
+                        });
+                    }
+
+                    string nestedDataFileName = "EliminateRaidOpponentList.json";
+                    string nestedDataPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList", nestedDataFileName);
+                    combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
+                    File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
+                    Console.WriteLine($"Successfully merged all JSON data and wrote to {nestedDataFileName}");
+
+                    ProcessJsonData(nestedDataPath);
+                }
+            }
+        }
+
+        private static void ProcessJsonData(string nestedDataPath)
         {
             try
             {

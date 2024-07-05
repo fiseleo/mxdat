@@ -1,18 +1,23 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Data;
+using System;
+using System.Data.SQLite;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace mxdat
 {
     public class RaidOpponentListjson
     {
+        private static string dbPath = "RaidOpponentList.db";
+
         public static void RaidOpponentListjsonMain(string[] args)
         {
-            // 检查当前时间并根据需要暂停程序
             CheckAndPauseAt3AM();
-
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
+
             if (!Directory.Exists(jsonFolderPath))
             {
                 Directory.CreateDirectory(jsonFolderPath);
@@ -22,46 +27,31 @@ namespace mxdat
             {
                 Console.WriteLine("RaidOpponentList folder already exists");
             }
+
+            CreateDatabaseAndTable();
+
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            JObject combinedData = new JObject();
-
             foreach (string file in jsonFiles)
             {
                 try
                 {
                     string jsonContent = File.ReadAllText(file);
-                    JObject jsonData = JObject.Parse(jsonContent);
-
-                    string nestedJsonStr = jsonData["packet"].ToString();
-                    JObject nestedData = JObject.Parse(nestedJsonStr);
-
-                    combinedData.Merge(nestedData, new JsonMergeSettings
-                    {
-                        MergeArrayHandling = MergeArrayHandling.Union
-                    });
-
-                    Console.WriteLine($"Added contents of {Path.GetFileName(file)} to combinedData.");
+                    InsertJsonDataIntoDatabase(jsonContent);
+                    Console.WriteLine($"Inserted contents of {Path.GetFileName(file)} into SQLite database.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error reading or parsing {Path.GetFileName(file)}: {ex.Message}");
+                    Console.WriteLine($"Error reading or inserting {Path.GetFileName(file)}: {ex.Message}");
                 }
             }
 
-            string nestedDataFileName = "RaidOpponentList.json";
-            string nestedDataPath = Path.Combine(jsonFolderPath, nestedDataFileName);
-            combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
-            File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
-            Console.WriteLine($"Successfully merged all JSON file data and wrote to {nestedDataFileName}");
+            ProcessRaidOpponentListData();
 
-            ProcessRaidOpponentListData(nestedDataPath);
-
-            // 完成后返回RaidOpponentListMain方法
             if (RaidOpponentList.isfinishloop)
             {
                 RaidOpponentList.shouldContinue = false;
@@ -71,8 +61,7 @@ namespace mxdat
             {
                 RaidOpponentList.shouldContinue = true;
                 RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
-
-            } 
+            }
         }
 
         private static long GetFileNumber(string filePath)
@@ -81,7 +70,7 @@ namespace mxdat
             Match match = Regex.Match(fileName, @"\d+");
             if (match.Success)
             {
-                return long.Parse(match.Value); // 从int改为long
+                return long.Parse(match.Value);
             }
             else
             {
@@ -89,7 +78,75 @@ namespace mxdat
             }
         }
 
-        private static void ProcessRaidOpponentListData(string nestedDataPath)
+        private static void CreateDatabaseAndTable()
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string createTableQuery = @"CREATE TABLE IF NOT EXISTS RaidOpponentList (
+                                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                JsonData TEXT
+                                            )";
+                using (SQLiteCommand cmd = new SQLiteCommand(createTableQuery, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void InsertJsonDataIntoDatabase(string jsonData)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string insertQuery = "INSERT INTO RaidOpponentList (JsonData) VALUES (@jsonData)";
+                using (SQLiteCommand cmd = new SQLiteCommand(insertQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@jsonData", jsonData);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void ProcessRaidOpponentListData()
+        {
+            using (SQLiteConnection conn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                conn.Open();
+
+                string selectQuery = "SELECT JsonData FROM RaidOpponentList";
+                using (SQLiteCommand cmd = new SQLiteCommand(selectQuery, conn))
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    JObject combinedData = new JObject();
+
+                    while (reader.Read())
+                    {
+                        string jsonData = reader.GetString(0);
+                        JObject jsonObject = JObject.Parse(jsonData);
+                        string nestedJsonStr = jsonObject["packet"].ToString();
+                        JObject nestedData = JObject.Parse(nestedJsonStr);
+
+                        combinedData.Merge(nestedData, new JsonMergeSettings
+                        {
+                            MergeArrayHandling = MergeArrayHandling.Union
+                        });
+                    }
+
+                    string nestedDataFileName = "RaidOpponentList.json";
+                    string nestedDataPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", nestedDataFileName);
+                    combinedData["timestamp"] = DateTime.UtcNow.ToString("o");
+                    File.WriteAllText(nestedDataPath, combinedData.ToString(Formatting.Indented));
+                    Console.WriteLine($"Successfully merged all JSON data and wrote to {nestedDataFileName}");
+
+                    ProcessJsonData(nestedDataPath);
+                }
+            }
+        }
+
+        private static void ProcessJsonData(string nestedDataPath)
         {
             try
             {
@@ -127,9 +184,9 @@ namespace mxdat
                 {
                     try
                     {
-                        long accountId = opponent.Value<long>("AccountId"); // 确保AccountId为long类型
+                        long accountId = opponent.Value<long>("AccountId");
                         string nickname = opponent.Value<string>("Nickname");
-                        int rank = opponent.Value<int>("Rank"); // 确保rank在Int32范围内
+                        int rank = opponent.Value<int>("Rank");
                         JObject resultObject = new JObject();
                         resultObject["AccountId"] = accountId;
                         resultObject["Nickname"] = nickname;
@@ -158,13 +215,13 @@ namespace mxdat
             DateTime today3AM = now.Date.AddHours(3);
             if (now > today3AM)
             {
-                today3AM = today3AM.AddDays(1); // 计算到下一个凌晨3点的时间
+                today3AM = today3AM.AddDays(1);
             }
 
             TimeSpan timeTo3AM = today3AM - now;
             if (timeTo3AM.TotalMinutes <= 15)
             {
-                Console.WriteLine("接近凌晨3点，暂停程序60分钟...");
+                Console.WriteLine("Approaching 3 AM, pausing the program for 60 minutes...");
                 Thread.Sleep(TimeSpan.FromMinutes(60));
                 ExecuteDecryptmxdat();
             }
@@ -172,8 +229,7 @@ namespace mxdat
 
         private static void ExecuteDecryptmxdat()
         {
-            
-            Console.WriteLine("running Decryptmxdat...");
+            Console.WriteLine("Running Decryptmxdat...");
             string[] emptyArgs = new string[0];
             Decryptmxdat.DecryptMain(emptyArgs);
         }
