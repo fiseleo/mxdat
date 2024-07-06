@@ -14,6 +14,8 @@ namespace mxdat
             string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidGetBestTeam");
 
+            CheckAndPauseAt3AM();
+
             if (!Directory.Exists(jsonFolderPath))
             {
                 Directory.CreateDirectory(jsonFolderPath);
@@ -22,6 +24,11 @@ namespace mxdat
             else
             {
                 Console.WriteLine("RaidGetBestTeam folder already exists");
+                foreach (string file in Directory.GetFiles(jsonFolderPath, "*.json"))
+                {
+                    File.Delete(file);
+                }
+                Console.WriteLine("Existing JSON files deleted from RaidGetBestTeam folder");
             }
 
             static string ExtractMxToken(string mxdatjson)
@@ -178,5 +185,33 @@ namespace mxdat
                 Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
             }
         }
+
+        private static void CheckAndPauseAt3AM()
+        {
+            DateTime now = DateTime.Now;
+            DateTime today3AM = now.Date.AddHours(3);
+            if (now > today3AM)
+            {
+                today3AM = today3AM.AddDays(1);
+            }
+
+            TimeSpan timeTo3AM = today3AM - now;
+            if (timeTo3AM.TotalMinutes <= 15)
+            {
+                Console.WriteLine("Approaching 3 AM, pausing the program for 60 minutes...");
+                Thread.Sleep(TimeSpan.FromMinutes(60));
+                ExecuteDecryptmxdat();
+            }
+        }
+
+        private static void ExecuteDecryptmxdat()
+        {
+            Console.WriteLine("Running Decryptmxdat...");
+            string[] emptyArgs = new string[0];
+            Decryptmxdat.DecryptMain(emptyArgs);
+        }
+
+
+
     }
 }

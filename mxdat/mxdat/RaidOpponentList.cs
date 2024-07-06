@@ -18,6 +18,7 @@ namespace mxdat
         public static void RaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
             Console.OutputEncoding = Encoding.UTF8;
+            CheckAndPauseAt3AM();
 
             if (shouldContinue)
             {
@@ -145,7 +146,7 @@ namespace mxdat
                         continue;
                     }
 
-                    if (!finalResponse.Content.Contains("OpponentUserDBs"))
+                    if (rankValue == 20025)
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
@@ -159,20 +160,6 @@ namespace mxdat
 
                     // Upload the JSON content to the server
                     UploadJsonToServer(finalResponseFilePath);
-
-
-                    // Pause until 3:00 AM the next day
-                    TimeSpan timeToWait = CalculateTimeToWait();
-                    Console.WriteLine($"Pausing for {timeToWait.TotalMinutes} minutes");
-                    // Forcing garbage collection
-                    Thread.Sleep((int)timeToWait.TotalMilliseconds);
-
-                    // Continue loop
-                    rankValue = 1;
-                    hash++;
-                    Thread.Sleep(3600000);// Pause for 15 minutes
-                    Decryptmxdat.DecryptMain(args);
-                    continue;
                 }
 
                 // Normal loop logic
@@ -207,7 +194,7 @@ namespace mxdat
                     continue;
                 }
 
-                if (!response.Content.Contains("OpponentUserDBs"))
+                if (rankValue == 20025)
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
@@ -225,7 +212,7 @@ namespace mxdat
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(900); // Wait 900ms before the next iteration
+                Thread.Sleep(2000); // Wait 900ms before the next iteration
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
@@ -257,16 +244,31 @@ namespace mxdat
                 Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
             }
         }
-
-        private static TimeSpan CalculateTimeToWait()
+        private static void CheckAndPauseAt3AM()
         {
             DateTime now = DateTime.Now;
             DateTime today3AM = now.Date.AddHours(3);
-            if (now >= today3AM)
+            if (now > today3AM)
             {
-                today3AM = today3AM.AddDays(1); // If the current time is past 3 AM, calculate the time to the next day's 3 AM
+                today3AM = today3AM.AddDays(1);
             }
-            return today3AM - now;
+
+            TimeSpan timeTo3AM = today3AM - now;
+            if (timeTo3AM.TotalMinutes <= 15)
+            {
+                Console.WriteLine("Approaching 3 AM, pausing the program for 60 minutes...");
+                Thread.Sleep(TimeSpan.FromMinutes(60));
+                ExecuteDecryptmxdat();
+            }
         }
+
+        private static void ExecuteDecryptmxdat()
+        {
+            Console.WriteLine("Running Decryptmxdat...");
+            string[] emptyArgs = new string[0];
+            Decryptmxdat.DecryptMain(emptyArgs);
+        }
+
+        
     }
 }
