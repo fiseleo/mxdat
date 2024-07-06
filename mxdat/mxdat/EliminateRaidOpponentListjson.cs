@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace mxdat
 {
@@ -35,49 +34,43 @@ namespace mxdat
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            Task.Run(async () =>
+            JArray combinedOpponents = new JArray();
+
+            foreach (string file in jsonFiles)
             {
-                JArray combinedOpponents = new JArray();
-
-                foreach (string file in jsonFiles)
+                if (Path.GetFileName(file).Equals("EliminateRaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Path.GetFileName(file).Equals("EliminateRaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine("Reached EliminateRaidOpponentList10006.json, stopping further processing.");
-                        break;
-                    }
-
-                    try
-                    {
-                        string jsonContent = await File.ReadAllTextAsync(file);
-                        JObject jsonObject = JObject.Parse(jsonContent);
-                        JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
-
-                        combinedOpponents.Merge(opponents);
-                        Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error reading or processing {Path.GetFileName(file)}: {ex.Message}");
-                    }
+                    Console.WriteLine("Reached EliminateRaidOpponentList10006.json, stopping further processing.");
+                    break;
                 }
 
-                await ProcessAndOutputData(combinedOpponents);
-
-                if (EliminateRaidOpponentList.isfinishloop)
+                try
                 {
-                    EliminateRaidOpponentList.shouldContinue = false;
-                    EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                    string jsonContent = File.ReadAllText(file);
+                    JObject jsonObject = JObject.Parse(jsonContent);
+                    JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
+
+                    combinedOpponents.Merge(opponents);
+                    Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
                 }
-                else
+                catch (Exception ex)
                 {
-                    EliminateRaidOpponentList.shouldContinue = true;
-                    EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                    Console.WriteLine($"Error reading or processing {Path.GetFileName(file)}: {ex.Message}");
                 }
+            }
 
+            ProcessAndOutputData(combinedOpponents);
 
-                
-            }).Wait();
+            if (EliminateRaidOpponentList.isfinishloop)
+            {
+                EliminateRaidOpponentList.shouldContinue = false;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
+            else
+            {
+                EliminateRaidOpponentList.shouldContinue = true;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
         }
 
         private static long GetFileNumber(string filePath)
@@ -94,7 +87,7 @@ namespace mxdat
             }
         }
 
-        private static async Task ProcessAndOutputData(JArray combinedOpponents)
+        private static void ProcessAndOutputData(JArray combinedOpponents)
         {
             try
             {
@@ -122,7 +115,7 @@ namespace mxdat
 
                 string resultFileName = "EliminateRaidOpponentListUserID&Nickname.json";
                 string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList", resultFileName);
-                await File.WriteAllTextAsync(resultFilePath, resultArray.ToString(Formatting.Indented));
+                File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }
             catch (Exception ex)

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("mxdat")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1277323555582ea949b85081204b61adc08f93b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a45e4a77988fd2523ee3a5ca4c5ca7f3c066c707")]
 [assembly: System.Reflection.AssemblyProductAttribute("mxdat")]
 [assembly: System.Reflection.AssemblyTitleAttribute("mxdat")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

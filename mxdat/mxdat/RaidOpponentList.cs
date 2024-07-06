@@ -102,7 +102,7 @@ namespace mxdat
 
             while (true)
             {
-                if (rankValue == 10036)
+                if (rankValue == 10066)
                 {
                     Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
                     savedRankValue = rankValue - 1;

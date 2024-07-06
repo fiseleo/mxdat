@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace mxdat
 {
@@ -31,46 +31,45 @@ namespace mxdat
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
-            Task.Run(async () =>
+            JArray combinedOpponents = new JArray();
+
+            foreach (string file in jsonFiles)
             {
-                JArray combinedOpponents = new JArray();
-
-                foreach (string file in jsonFiles)
+                if (Path.GetFileName(file).Equals("RaidOpponentList10036.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Path.GetFileName(file).Equals("RaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine("Reached RaidOpponentList10006.json, stopping further processing.");
-                        break;
-                    }
-
-                    try
-                    {
-                        string jsonContent = await File.ReadAllTextAsync(file);
-                        JObject jsonObject = JObject.Parse(jsonContent);
-                        JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
-
-                        combinedOpponents.Merge(opponents);
-                        Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error reading or processing {Path.GetFileName(file)}: {ex.Message}");
-                    }
+                    Console.WriteLine("Reached RaidOpponentList10036.json, stopping further processing.");
+                    break;
                 }
 
-                await ProcessAndOutputData(combinedOpponents);
+                try
+                {
+                    string jsonContent = File.ReadAllText(file);
+                    JObject jsonObject = JObject.Parse(jsonContent);
+                    // Parse the nested JSON string in the "packet" key
+                    JObject packetObject = JObject.Parse(jsonObject["packet"].ToString());
+                    JArray opponents = (JArray)packetObject["OpponentUserDBs"];
 
-                if (RaidOpponentList.isfinishloop)
-                {
-                    RaidOpponentList.shouldContinue = false;
-                    RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                    combinedOpponents.Merge(opponents);
+                    Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
                 }
-                else
+                catch (Exception ex)
                 {
-                    RaidOpponentList.shouldContinue = true;
-                    RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                    Console.WriteLine($"Error reading or processing {Path.GetFileName(file)}: {ex.Message}");
                 }
-            }).Wait();
+            }
+
+            ProcessAndOutputData(combinedOpponents);
+
+            if (RaidOpponentList.isfinishloop)
+            {
+                RaidOpponentList.shouldContinue = false;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
+            else
+            {
+                RaidOpponentList.shouldContinue = true;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+            }
         }
 
         private static long GetFileNumber(string filePath)
@@ -87,7 +86,7 @@ namespace mxdat
             }
         }
 
-        private static async Task ProcessAndOutputData(JArray combinedOpponents)
+        private static void ProcessAndOutputData(JArray combinedOpponents)
         {
             try
             {
@@ -115,7 +114,7 @@ namespace mxdat
 
                 string resultFileName = "RaidOpponentListUserID&Nickname.json";
                 string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", resultFileName);
-                await File.WriteAllTextAsync(resultFilePath, resultArray.ToString(Formatting.Indented));
+                File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }
             catch (Exception ex)

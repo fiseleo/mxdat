@@ -122,6 +122,8 @@ namespace mxdat
                         else if (closestSeason.SourceFile == "RaidSeasonManageExcelTable.json")
                         {
                             Console.WriteLine("Executing RaidOpponentList...");
+                            //RaidOpponentListjson.RaidOpponentListjsonMain(args);
+                            
                             RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
                             //RaidGetBestTeam.RaidGetBestTeamMain(args);
                         }
