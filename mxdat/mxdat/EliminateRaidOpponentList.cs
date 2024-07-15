@@ -146,7 +146,7 @@ namespace mxdat
                         continue;
                     }
 
-                    if (rankValue == 20025)
+                    if (!finalResponse.Content.Contains("OpponentUserDBs"))
                     {
                         Console.WriteLine(finalResponse.Content);
                         Console.WriteLine("No player information detected");
@@ -194,7 +194,7 @@ namespace mxdat
                     continue;
                 }
 
-                if (rankValue == 20025)
+                if (!response.Content.Contains("OpponentUserDBs"))
                 {
                     Console.WriteLine(response.Content);
                     Console.WriteLine("No player information detected");
