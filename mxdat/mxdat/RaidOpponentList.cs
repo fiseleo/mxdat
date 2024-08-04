@@ -42,8 +42,9 @@ namespace mxdat
 
         private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
         {
-            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string mxdatjson = Path.Combine(rootDirectory, "mxdat.json");
+            string jsonFolderPath = Path.Combine(rootDirectory, "RaidOpponentList");
 
             if (!Directory.Exists(jsonFolderPath))
             {

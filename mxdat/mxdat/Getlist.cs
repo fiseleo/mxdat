@@ -102,6 +102,7 @@ namespace mxdat
             {
                 var closestSeason = GetClosestSeason();
                 var now = DateTime.Now;
+                
 
                 // Output the closest OpenRaidBossGroup to the Console if the start date and time is now
                 if (closestSeason != null && now >= closestSeason.SeasonStartData && now < closestSeason.SeasonEndData)

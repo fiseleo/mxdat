@@ -16,7 +16,8 @@ namespace mxdat
             CheckAndPauseAt3AM();
 
             // Step 1: Check and create EliminateRaidOpponentList directory if not exists
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFolderPath = Path.Combine(rootDirectory, "EliminateRaidOpponentList");
             if (!Directory.Exists(jsonFolderPath))
             {
                 Directory.CreateDirectory(jsonFolderPath);

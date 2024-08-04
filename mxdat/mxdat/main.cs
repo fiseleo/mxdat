@@ -4,9 +4,11 @@ namespace mxdat
     {
         public static void Main(string[] args)
         {
-            if (!File.Exists(@"C:\ba\mx.dat"))
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath = Path.Combine(rootDirectory,"mx", "mx.dat");
+            if (!File.Exists(filePath))
             {
-                Console.WriteLine("C:\\ba沒有mx.dat");
+                Console.WriteLine("沒有mx.dat");
                 return;
             }
             else

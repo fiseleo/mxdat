@@ -9,7 +9,10 @@ namespace mxdat
         {
             try
             {
-                string jsonContent = File.ReadAllText("resource.json");
+                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string resourcejsonFilePath = Path.Combine(rootDirectory, "resource.json");
+                string ExeclzipPath = Path.Combine(rootDirectory, "Excel.zip");
+                string jsonContent = File.ReadAllText(resourcejsonFilePath);
                 var jsonObject = JObject.Parse(jsonContent);
                 string resourcePath = jsonObject["patch"].Value<string>("resource_path");
 
@@ -23,7 +26,7 @@ namespace mxdat
                 if (response.IsSuccessful)
                 {
                     byte[] fileBytes = response.RawBytes;
-                    File.WriteAllBytes("Excel.zip", fileBytes);
+                    File.WriteAllBytes(ExeclzipPath, fileBytes);
                     Console.WriteLine("Excel.zip downloaded successfully");
                 }
                 else

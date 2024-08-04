@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {}
+    "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj": {}
   },
   "projects": {
-    "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj": {
+    "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
+        "projectUniqueName": "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj",
         "projectName": "mxdat",
-        "projectPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
-        "packagesPath": "C:\\Users\\aaaa5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\obj\\",
+        "projectPath": "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj",
+        "packagesPath": "/home/linuxc/.nuget/packages/",
+        "outputPath": "/home/linuxc/桌面/mxdat/mxdat/mxdat/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\aaaa5\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/linuxc/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -32,11 +32,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -84,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.107/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

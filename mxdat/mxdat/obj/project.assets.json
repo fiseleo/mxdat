@@ -1380,19 +1380,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\aaaa5\\.nuget\\packages\\": {}
+    "/home/linuxc/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
+      "projectUniqueName": "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj",
       "projectName": "mxdat",
-      "projectPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\mxdat.csproj",
-      "packagesPath": "C:\\Users\\aaaa5\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aaaa5\\OneDrive\\桌面\\BA\\mxdat\\mxdat\\mxdat\\obj\\",
+      "projectPath": "/home/linuxc/桌面/mxdat/mxdat/mxdat/mxdat.csproj",
+      "packagesPath": "/home/linuxc/.nuget/packages/",
+      "outputPath": "/home/linuxc/桌面/mxdat/mxdat/mxdat/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\aaaa5\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/linuxc/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -1410,11 +1410,6 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -1462,7 +1457,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.107/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
@@ -1471,7 +1466,7 @@
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "套件 'DotNetZip' 1.9.1.8 具有已知的 高 嚴重性弱點，https://github.com/advisories/GHSA-7378-6268-4278。",
+      "message": "Package 'DotNetZip' 1.9.1.8 has a known high severity vulnerability, https://github.com/advisories/GHSA-7378-6268-4278",
       "libraryId": "DotNetZip",
       "targetGraphs": [
         "net8.0"
@@ -1481,7 +1476,7 @@
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "套件 'RestSharp' 106.11.7 具有已知的 高 嚴重性弱點，https://github.com/advisories/GHSA-9pq7-rcxv-47vq。",
+      "message": "Package 'RestSharp' 106.11.7 has a known high severity vulnerability, https://github.com/advisories/GHSA-9pq7-rcxv-47vq",
       "libraryId": "RestSharp",
       "targetGraphs": [
         "net8.0"
@@ -1491,7 +1486,7 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "已使用 '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' 而非專案目標架構 'net8.0' 還原了套件 'DotNetZip 1.9.1.8'。此套件與您的專案並非完全相容。",
+      "message": "Package 'DotNetZip 1.9.1.8' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
       "libraryId": "DotNetZip",
       "targetGraphs": [
         "net8.0"

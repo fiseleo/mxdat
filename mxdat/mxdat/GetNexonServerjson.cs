@@ -8,17 +8,20 @@ namespace mxdat
     {
         public static async Task<string> GetNexonServerjsonMain(string[] args)
         {
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var client = new RestClient("https://api-pub.nexon.com/patch/v1.1/version-check");
             var request = new RestRequest();
             request.Method = Method.POST;
+            string ExeclzipPath = Path.Combine(rootDirectory, "Excel.zip");
+            string oldresourcejsonFilePath = Path.Combine(rootDirectory, "resource.json");
 
-            if (File.Exists("resource.json"))
+            if (File.Exists(oldresourcejsonFilePath))
             {
-                File.Delete("resource.json");
+                File.Delete(oldresourcejsonFilePath);
             }
-            if (File.Exists("Excel.zip"))
+            if (File.Exists(ExeclzipPath))
             {
-                File.Delete("Excel.zip");
+                File.Delete(ExeclzipPath);
             }
             request.AddHeader("Connection", "keep-alive");
             request.AddHeader("User-Agent", "Dalvik/2.1.0 (Linux; U; Android 12; SM-A226B Build/V417IR)");
@@ -34,9 +37,9 @@ namespace mxdat
                 market_code = "playstore",
                 sdk_version = "239",
                 country = "US",
-                curr_build_version = "1.63.281025",
-                curr_build_number = "281025",
-                curr_patch_version = "1071"
+                curr_build_version = "1.66.291639",
+                curr_build_number = "291639",
+                curr_patch_version = "1120"
             };
             request.AddJsonBody(body);
 
@@ -44,7 +47,9 @@ namespace mxdat
             Console.WriteLine(response.Content);
 
             // 將 response 內容寫入到檔案中
-            File.WriteAllText("resource.json", response.Content);
+            string resourcejsonFilePath = Path.Combine(rootDirectory, "resource.json");
+            File.WriteAllText(resourcejsonFilePath, response.Content);
+            
 
             
 

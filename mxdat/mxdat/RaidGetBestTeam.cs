@@ -11,8 +11,9 @@ namespace mxdat
     {
         public static void RaidGetBestTeamMain(string[] args)
         {
-            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidGetBestTeam");
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string mxdatjson = Path.Combine(rootDirectory, "mxdat.json");
+            string jsonFolderPath = Path.Combine(rootDirectory, "RaidGetBestTeam");
 
             CheckAndPauseAt3AM();
 

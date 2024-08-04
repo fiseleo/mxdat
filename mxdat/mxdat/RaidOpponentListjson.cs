@@ -13,7 +13,8 @@ namespace mxdat
         public static void RaidOpponentListjsonMain(string[] args)
         {
             CheckAndPauseAt3AM();
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFolderPath = Path.Combine(rootDirectory, "RaidOpponentList");
 
             if (!Directory.Exists(jsonFolderPath))
             {
