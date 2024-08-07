@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.IO;
-
+using mxdat;
 namespace mxdat
 {
     public class pythonScipt
@@ -69,8 +68,9 @@ namespace mxdat
                         }
                     }
                 }
+
+                Updatalist.UpdatalistMain(args);
                 
-                Getlist.GetlistMain(args);
             }
             catch (Exception ex)
             {
