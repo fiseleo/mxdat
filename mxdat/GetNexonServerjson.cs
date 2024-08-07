@@ -34,9 +34,9 @@ namespace mxdat
                 market_code = "playstore",
                 sdk_version = "239",
                 country = "US",
-                curr_build_version = "1.63.281025",
-                curr_build_number = "281025",
-                curr_patch_version = "1071"
+                curr_build_version = "1.66.291639",
+                curr_build_number = "291639",
+                curr_patch_version = "1120"
             };
             request.AddJsonBody(body);
 

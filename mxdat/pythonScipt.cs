@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using JsonFileUploader;
 
 namespace mxdat
 {
@@ -49,8 +50,7 @@ namespace mxdat
                         Console.WriteLine(result);
                     }
                 }
-                
-                Getlist.GetlistMain(args);
+                Updatalist.UpdatalistMain(args);
             }
             catch (Exception ex)
             {
