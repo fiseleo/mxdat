@@ -13,8 +13,6 @@ namespace mxdat
         public static int rankValue = 1;
         public static bool isfinishloop = false;
 
-        public static bool finalloop = false;
-
         public static void RaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
             Console.OutputEncoding = Encoding.UTF8;
@@ -23,8 +21,8 @@ namespace mxdat
             if (shouldContinue)
             {
                 shouldContinue = false;
-                Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue 1");
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1); // Resume with saved rank value
+                Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
+                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
             }
             else if (isfinishloop)
             {
@@ -32,7 +30,6 @@ namespace mxdat
                 
                 Console.WriteLine($"Returning from RaidOpponentListjson, continuing to execute RaidOpponentList with rankValue {savedRankValue}");
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
-
             }
             else
             {
@@ -82,9 +79,9 @@ namespace mxdat
             }
 
             string mxToken = ExtractMxToken(mxdatjson);
-            long hash =  73083163508766;
-            string accountServerId = ExtractAccountId(mxdatjson);
-            string accountId = ExtractAccountServerId(mxdatjson);
+            long hash = 73083163508766;
+            string accountServerId = ExtractAccountServerId(mxdatjson);
+            string accountId = ExtractAccountId(mxdatjson);
 
             string baseJson = "{{\"Protocol\": 17016, " +
                               "\"Rank\": {0}, " +
@@ -110,56 +107,6 @@ namespace mxdat
                     isfinishloop = true;
                     RaidOpponentListjson.RaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
-                }
-
-                DateTime now = DateTime.Now;
-                if (now.Date == seasonEndData.Date && now.Date == settlementEndDate.Date && now.TimeOfDay >= seasonEndData.TimeOfDay && now.TimeOfDay <= settlementEndDate.TimeOfDay)
-                {
-                    // Final loop
-                    Console.WriteLine("This is the final loop");
-                    string finalJson = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
-                    byte[] finalMx = instance.RequestToBinary(Protocol.Raid_OpponentList, finalJson);
-                    string finalFilePath = "mx.dat";
-                    File.WriteAllBytes(finalFilePath, finalMx);
-
-                    var finalClient = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
-                    finalClient.Timeout = -1;
-                    var finalRequest = new RestRequest(Method.POST);
-                    finalRequest.AddHeader("mx", "1");
-                    finalRequest.AddFile("mx", finalFilePath);
-
-                    IRestResponse finalResponse = null;
-                    try
-                    {
-                        finalResponse = finalClient.Execute(finalRequest);
-                        if (finalResponse.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(finalResponse.Content))
-                        {
-                            Console.WriteLine("Response is empty or request failed, retrying...");
-                            Thread.Sleep(2000); // Wait 2 seconds before retrying
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Request failed: {ex.Message}, retrying...");
-                        Thread.Sleep(2000); // Wait 2 seconds before retrying
-                        continue;
-                    }
-
-                    if (!finalResponse.Content.Contains("OpponentUserDBs"))
-                    {
-                        Console.WriteLine(finalResponse.Content);
-                        Console.WriteLine("No player information detected");
-                        finalloop = true;
-                        RaidGetBestTeam.RaidGetBestTeamMain(args);
-                        return; // Stop the current method execution
-                    }
-
-                    string finalResponseFilePath = Path.Combine(jsonFolderPath, $"RaidOpponentList{rankValue}.json");
-                    File.WriteAllText(finalResponseFilePath, finalResponse.Content);
-
-                    // Upload the JSON content to the server
-                    UploadJsonToServer(finalResponseFilePath);
                 }
 
                 // Normal loop logic
@@ -212,9 +159,10 @@ namespace mxdat
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(2000); // Wait 900ms before the next iteration
+                Thread.Sleep(2000); // Wait 2 seconds before the next iteration
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
+                CheckAndPauseAt3AM();
             }
         }
 
@@ -244,6 +192,7 @@ namespace mxdat
                 Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
             }
         }
+
         private static void CheckAndPauseAt3AM()
         {
             DateTime now = DateTime.Now;
@@ -268,7 +217,5 @@ namespace mxdat
             string[] emptyArgs = new string[0];
             Decryptmxdat.DecryptMain(emptyArgs);
         }
-
-        
     }
 }

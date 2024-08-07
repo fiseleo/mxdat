@@ -127,6 +127,7 @@ namespace mxdat
 
                     // Upload the JSON content to the server
                     UploadJsonToServer(responseFilePath);
+                    CheckAndPauseAt3AM();
 
                     Thread.Sleep(100);
                 }
@@ -147,11 +148,6 @@ namespace mxdat
                 EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
 
-            if (EliminateRaidOpponentList.finalloop)
-            {
-                Decryptmxdat.DecryptMain(args);
-                EliminateRaidOpponentList.finalloop = false;
-            }
 
         }
 
