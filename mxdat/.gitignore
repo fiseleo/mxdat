@@ -142,6 +142,8 @@ RaidOpponentList/
 obj/
 
 bin/
+python/FlatData
+python/lib/site-packages
 # NuGet Packages
 *.nupkg
 # The packages folder can be ignored because of Package Restore

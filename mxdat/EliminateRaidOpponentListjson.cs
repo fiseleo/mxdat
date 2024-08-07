@@ -39,9 +39,9 @@ namespace mxdat
 
             foreach (string file in jsonFiles)
             {
-                if (Path.GetFileName(file).Equals("EliminateRaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
+                if (Path.GetFileName(file).Equals("JP_EliminateRaidOpponentList20056.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Reached EliminateRaidOpponentList10006.json, stopping further processing.");
+                    Console.WriteLine("Reached EliminateRaidOpponentList20056.json, stopping further processing.");
                     break;
                 }
 
@@ -114,7 +114,7 @@ namespace mxdat
                     }
                 }
 
-                string resultFileName = "EliminateRaidOpponentListUserID&Nickname.json";
+                string resultFileName = "JP_EliminateRaidOpponentListUserID&Nickname.json";
                 string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList", resultFileName);
                 File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");

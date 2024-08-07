@@ -76,7 +76,7 @@ namespace mxdat
                     "\"AccountId\": \"{4}\"}}";
 
             string RaidFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
-            string ExtractAccountIdAndNicknamePath = Path.Combine(RaidFolderPath, "RaidOpponentListUserID&Nickname.json");
+            string ExtractAccountIdAndNicknamePath = Path.Combine(RaidFolderPath, "JP_RaidOpponentListUserID&Nickname.json");
 
             try
             {
@@ -88,9 +88,9 @@ namespace mxdat
                     int rank = opponent.Value<int>("Rank");
 
                     // If rank is 10000, stop processing
-                    if (rank == 10001)
+                    if (rank == 20001)
                     {
-                        Console.WriteLine("Rank is 10000, stopping the process.");
+                        Console.WriteLine("Rank is 20000, stopping the process.");
                         break;
                     }
 
@@ -129,14 +129,14 @@ namespace mxdat
                     Console.WriteLine($"RaidGetBest{SearchAccountId}.json created");
 
                     // Upload the JSON content to the server
-                    UploadJsonToServer(responseFilePath);
-
+                    //UploadJsonToServer(responseFilePath);
+                    CheckAndPauseAt3AM();
                     Thread.Sleep(100);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error reading RaidOpponentListUserID&Nickname.json: {ex.Message}");
+                Console.WriteLine($"Error reading JP_RaidOpponentListUserID&Nickname.json: {ex.Message}");
             }
 
             if (RaidOpponentList.shouldContinue)
@@ -148,12 +148,6 @@ namespace mxdat
             {
                 RaidOpponentList.isfinishloop = true;
                 RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
-            }
-
-            if (RaidOpponentList.finalloop)
-            {
-                Decryptmxdat.DecryptMain(args);
-                RaidOpponentList.finalloop = false;
             }
             
 

@@ -86,7 +86,7 @@ namespace mxdat
                     int rank = opponent.Value<int>("Rank");
 
                     // If rank is 10000, stop processing
-                    if (rank == 10001)
+                    if (rank == 20001)
                     {
                         Console.WriteLine("Rank is 10000, stopping the process.");
                         break;
@@ -127,7 +127,8 @@ namespace mxdat
                     Console.WriteLine($"EliminateRaidGetBest{SearchAccountId}.json created");
 
                     // Upload the JSON content to the server
-                    UploadJsonToServer(responseFilePath);
+                    //UploadJsonToServer(responseFilePath);
+                    CheckAndPauseAt3AM();
 
                     Thread.Sleep(100);
                 }
@@ -146,12 +147,6 @@ namespace mxdat
             {
                 EliminateRaidOpponentList.isfinishloop = true;
                 EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
-            }
-
-            if (EliminateRaidOpponentList.finalloop)
-            {
-                Decryptmxdat.DecryptMain(args);
-                EliminateRaidOpponentList.finalloop = false;
             }
 
         }

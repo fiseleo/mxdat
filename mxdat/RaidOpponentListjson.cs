@@ -27,8 +27,8 @@ namespace mxdat
             }
 
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
-                                          .Where(file => !Path.GetFileName(file).Equals("RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
-                                                      && !Path.GetFileName(file).Equals("RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
+                                          .Where(file => !Path.GetFileName(file).Equals("JP_RaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
+                                                      && !Path.GetFileName(file).Equals("JP_RaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
@@ -36,7 +36,7 @@ namespace mxdat
 
             foreach (string file in jsonFiles)
             {
-                if (Path.GetFileName(file).Equals("RaidOpponentList10036.json", StringComparison.OrdinalIgnoreCase))
+                if (Path.GetFileName(file).Equals("JP_RaidOpponentList20026.json", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine("Reached RaidOpponentList10036.json, stopping further processing.");
                     break;
@@ -113,7 +113,7 @@ namespace mxdat
                     }
                 }
 
-                string resultFileName = "RaidOpponentListUserID&Nickname.json";
+                string resultFileName = "JP_RaidOpponentListUserID&Nickname.json";
                 string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", resultFileName);
                 File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
