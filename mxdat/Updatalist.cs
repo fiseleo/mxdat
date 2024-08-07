@@ -11,7 +11,7 @@ namespace mxdat
     {
         static readonly string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
         static readonly string jsonDirectory = Path.Combine(rootDirectory,"Updata"); // Relative path: Updata folder
-        static readonly List<string> sourceDirectories = new List<string> { "./mxdatpy/extracted/Excel" }; // All source directories
+        static readonly List<string> sourceDirectories = new List<string> { rootDirectory,"mxdatpy","extracted","Excel" }; // All source directories
         static readonly string serverUrl = "http://35.247.55.157:9876/";
         static readonly string token = "]4]88Nft9*wn";
         static readonly List<string> fileNames = new List<string>
