@@ -36,7 +36,7 @@ namespace mxdat
             Console.WriteLine(jsonText);
             string jsonFilePath = Path.Combine(rootDirectory, "mxdat.json");
             File.WriteAllText(jsonFilePath, jsonText);
-            await GetNexonServerjson.GetNexonServerjsonMain(args);
+            APK.APKMain(args);
         }
 
         

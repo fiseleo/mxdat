@@ -10,14 +10,10 @@ namespace mxdat
             try
             {
                 string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string resourcejsonFilePath = Path.Combine(rootDirectory, "resource.json");
+                string resourcejsonFilePath = Path.Combine(rootDirectory, "mxdatpy", "APK", "AddressablesCatalogUrlRoot.txt");
                 string ExeclzipPath = Path.Combine(rootDirectory, "Excel.zip");
-                string jsonContent = File.ReadAllText(resourcejsonFilePath);
-                var jsonObject = JObject.Parse(jsonContent);
-                string resourcePath = jsonObject["patch"].Value<string>("resource_path");
-
-                string baseUrl = resourcePath.Substring(0, resourcePath.LastIndexOf("/") + 1);
-                string excelZipUrl = $"{baseUrl}Preload/TableBundles/Excel.zip";
+                string txtContent = File.ReadAllText(resourcejsonFilePath);
+                string excelZipUrl = $"{txtContent}/TableBundles/Excel.zip";
 
                 var client = new RestClient(excelZipUrl);
                 var request = new RestRequest(Method.GET);

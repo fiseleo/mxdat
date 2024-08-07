@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="DotNetZip" Version="1.9.1.8" />
     <PackageReference Include="Google.FlatBuffers" Version="24.3.25" />
+    <PackageReference Include="MemoryPack" Version="1.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="106.11.7" />
     <PackageReference Include="Serilog" Version="4.0.0" />

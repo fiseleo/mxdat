@@ -114,6 +114,7 @@ namespace mxdat
                 // Normal loop logic
                 string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
                 Console.WriteLine($"査排名{rankValue}中...");
+                // CS0117 move dump.cs
 
                 byte[] mx = instance.RequestToBinary(Protocol.Raid_OpponentList, json);
                 string filePath = "mx.dat";
