@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 using System.Threading;
 
@@ -102,7 +101,6 @@ namespace mxdat
             {
                 var closestSeason = GetClosestSeason();
                 var now = DateTime.Now;
-                
 
                 // Output the closest OpenRaidBossGroup to the Console if the start date and time is now
                 if (closestSeason != null && now >= closestSeason.SeasonStartData && now < closestSeason.SeasonEndData)
@@ -123,10 +121,7 @@ namespace mxdat
                         else if (closestSeason.SourceFile == "RaidSeasonManageExcelTable.json")
                         {
                             Console.WriteLine("Executing RaidOpponentList...");
-                            //RaidOpponentListjson.RaidOpponentListjsonMain(args);
-                            
                             RaidOpponentList.RaidOpponentListMain(args, closestSeason.SeasonEndData, closestSeason.SettlementEndDate);
-                            //RaidGetBestTeam.RaidGetBestTeamMain(args);
                         }
                         break;
                     }
@@ -138,8 +133,40 @@ namespace mxdat
                 else
                 {
                     Console.WriteLine("沒有開放。");
-                    Thread.Sleep(60000); // Sleep for 1 minute
-                    Decryptmxdat.DecryptMain(args);
+                    Console.WriteLine("按1 執行 RaidOpponentList.RaidOpponentListMain");
+                    Console.WriteLine("按2 執行 EliminateRaidOpponentList.EliminateRaidOpponentListMain");
+                    Console.WriteLine("等待 1 分鐘後繼續執行 Decryptmxdat.DecryptMain");
+
+                    bool keyPressed = false;
+
+                    for (int i = 0; i < 60; i++)
+                    {
+                        if (Console.KeyAvailable)
+                        {
+                            var key = Console.ReadKey(intercept: true).Key;
+                            if (key == ConsoleKey.D1 || key == ConsoleKey.NumPad1)
+                            {
+                                Console.WriteLine("Executing RaidOpponentList...");
+                                RaidOpponentList.RaidOpponentListMain(args, closestSeason?.SeasonEndData ?? DateTime.Now, closestSeason?.SettlementEndDate ?? DateTime.Now);
+                                keyPressed = true;
+                                break;
+                            }
+                            else if (key == ConsoleKey.D2 || key == ConsoleKey.NumPad2)
+                            {
+                                Console.WriteLine("Executing EliminateRaidOpponentList...");
+                                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, closestSeason?.SeasonEndData ?? DateTime.Now, closestSeason?.SettlementEndDate ?? DateTime.Now);
+                                keyPressed = true;
+                                break;
+                            }
+                        }
+                        Thread.Sleep(1000); // Sleep for 1 second
+                    }
+
+                    if (!keyPressed)
+                    {
+                        Console.WriteLine("1 分鐘過去了，繼續執行 Decryptmxdat.DecryptMain...");
+                        Decryptmxdat.DecryptMain(args);
+                    }
                 }
             }
         }
