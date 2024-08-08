@@ -120,7 +120,7 @@ namespace mxdat
                 string filePath = "mx.dat";
                 File.WriteAllBytes(filePath, mx);
 
-                var client = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
+                var client = new RestClient("https://prod-game.bluearchiveyostar.com:5000/api/gateway");
                 client.Timeout = -1;
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("mx", "1");
