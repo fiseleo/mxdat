@@ -105,6 +105,7 @@ namespace mxdat
                     client.Timeout = -1;
                     var request = new RestRequest(Method.POST);
                     request.AddHeader("mx", "1");
+                    request.AddHeader("bundle-version", "hqvu8nx1gz");
                     request.AddFile("mx", "mx.dat");
                     IRestResponse response = null;
 

@@ -124,6 +124,7 @@ namespace mxdat
                 client.Timeout = -1;
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("mx", "1");
+                request.AddHeader("bundle-version", "hqvu8nx1gz");
                 request.AddFile("mx", filePath);
 
                 IRestResponse response = null;
@@ -147,23 +148,24 @@ namespace mxdat
                 {
                     rankValue = 120000;
                 }
+                if (rankValue == 120060);
+                {
+                    shouldContinue = true; // Set flag variable
+                    isfinishloop = false;
+                    RaidGetBestTeam.RaidGetBestTeamMain(args);
+                    
+                }
                 string responseFilePath = Path.Combine(jsonFolderPath, $"JP_RaidOpponentList{rankValue}.json");
                 File.WriteAllText(responseFilePath, response.Content);
                 // Upload the JSON content to the server
                 UploadJsonToServer(responseFilePath);
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(2000); // Wait 2 seconds before the next iteration
+                Thread.Sleep(900); // Wait 2 seconds before the next iteration
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 CheckAndPauseAt3AM();
-                if (rankValue == 120060);
-                {
-                    shouldContinue = true; // Set flag variable
-                    isfinishloop = false;
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
-                    return; // Stop the current method execution
-                }
+                return;
             }
         }
 

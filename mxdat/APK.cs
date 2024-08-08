@@ -25,7 +25,7 @@ class APK
         }
         else
         {
-            Console.WriteLine("Parameter file not found. Exiting.");
+            Console.WriteLine("setversion.txt file not found. Exiting.");
             return;
         }
 
