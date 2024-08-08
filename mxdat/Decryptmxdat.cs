@@ -34,7 +34,7 @@ namespace mxdat
             Console.WriteLine(jsonText);
             File.WriteAllText("mxdat.json", jsonText);
 
-            await GetNexonServerjson.GetNexonServerjsonMain(args);
+            GetNexonServerjson.GetNexonServerjsonMain(args);
         }
 
         
