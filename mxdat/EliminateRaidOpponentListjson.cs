@@ -30,8 +30,8 @@ namespace mxdat
 
             // Step 2: Process all JSON files in EliminateRaidOpponentList directory
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
-                                          .Where(file => !Path.GetFileName(file).Equals("EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
-                                                      && !Path.GetFileName(file).Equals("EliminateRaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
+                                          .Where(file => !Path.GetFileName(file).Equals("JP_EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
+                                                      && !Path.GetFileName(file).Equals("JP_EliminateRaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
                                           .OrderBy(GetFileNumber)
                                           .ToArray();
 
@@ -113,9 +113,9 @@ namespace mxdat
                         Console.WriteLine($"Error processing opponent data: {ex.Message}");
                     }
                 }
-
+                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string resultFileName = "JP_EliminateRaidOpponentListUserID&Nickname.json";
-                string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList", resultFileName);
+                string resultFilePath = Path.Combine(rootDirectory, "EliminateRaidOpponentList", resultFileName);
                 File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }

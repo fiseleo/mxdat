@@ -146,7 +146,7 @@ namespace mxdat
                 {
                     rankValue = 120000;
                 }
-                if (rankValue == 120060) ;
+                if (rankValue == 120060)
                 {
                     shouldContinue = true;
                     isfinishloop = false;
@@ -166,7 +166,7 @@ namespace mxdat
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 CheckAndPauseAt3AM();
-                return;
+                //return;
             }
         }
 

@@ -38,7 +38,7 @@ namespace mxdat
             {
                 if (Path.GetFileName(file).Equals("JP_RaidOpponentList20026.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Reached RaidOpponentList10036.json, stopping further processing.");
+                    Console.WriteLine("Reached RaidOpponentList20026.json, stopping further processing.");
                     break;
                 }
 
@@ -113,8 +113,9 @@ namespace mxdat
                     }
                 }
 
+                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string resultFileName = "JP_RaidOpponentListUserID&Nickname.json";
-                string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList", resultFileName);
+                string resultFilePath = Path.Combine(rootDirectory, "RaidOpponentList", resultFileName);
                 File.WriteAllText(resultFilePath, resultArray.ToString(Formatting.Indented));
                 Console.WriteLine($"Successfully wrote AccountId and Nickname to file: {resultFileName}");
             }

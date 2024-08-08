@@ -73,8 +73,8 @@ namespace mxdat
                     "\"MxToken\": \"{2}\"}}, " +
                     "\"AccountId\": \"{4}\"}}";
 
-            string EliminateRaidFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
-            string ExtractAccountIdAndNicknamePath = Path.Combine(EliminateRaidFolderPath, "EliminateRaidOpponentListUserID&Nickname.json");
+            string EliminateRaidFolderPath = Path.Combine(rootDirectory, "EliminateRaidOpponentList");
+            string ExtractAccountIdAndNicknamePath = Path.Combine(EliminateRaidFolderPath, "JP_EliminateRaidOpponentListUserID&Nickname.json");
 
             try
             {

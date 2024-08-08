@@ -147,6 +147,7 @@ namespace mxdat
                             if (key == ConsoleKey.D1 || key == ConsoleKey.NumPad1)
                             {
                                 Console.WriteLine("Executing RaidOpponentList...");
+                                //RaidGetBestTeam.RaidGetBestTeamMain(args);
                                 RaidOpponentList.RaidOpponentListMain(args, closestSeason?.SeasonEndData ?? DateTime.Now, closestSeason?.SettlementEndDate ?? DateTime.Now);
                                 keyPressed = true;
                                 break;

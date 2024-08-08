@@ -75,7 +75,7 @@ namespace mxdat
                     "\"MxToken\": \"{2}\"}}, " +
                     "\"AccountId\": \"{4}\"}}";
 
-            string RaidFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
+            string RaidFolderPath = Path.Combine(rootDirectory, "RaidOpponentList");
             string ExtractAccountIdAndNicknamePath = Path.Combine(RaidFolderPath, "JP_RaidOpponentListUserID&Nickname.json");
 
             try
