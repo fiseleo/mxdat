@@ -130,7 +130,7 @@ namespace mxdat
                     if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(response.Content))
                     {
                         Console.WriteLine("Response is empty or request failed, retrying...");
-                        Thread.Sleep(2000); // Wait 2 seconds before retrying
+                        Thread.Sleep(900); // Wait 2 seconds before retrying
                         continue;
                     }
                 }
