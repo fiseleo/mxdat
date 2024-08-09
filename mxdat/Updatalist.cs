@@ -88,14 +88,14 @@ namespace mxdat
                 // Check JSON structure and add protocol field
                 if (jsonObject.Type == JTokenType.Object)
                 {
-                    ((JObject)jsonObject)["protocol"] = Path.GetFileName(filePath);
+                    ((JObject)jsonObject)["protocol"] = Path.GetFileName($"JP_{filePath}");
                 }
                 else if (jsonObject.Type == JTokenType.Array)
                 {
                     jsonObject = new JObject
                     {
                         ["Data"] = jsonObject,
-                        ["protocol"] = Path.GetFileName(filePath)
+                        ["protocol"] = Path.GetFileName($"JP_{filePath}")
                     };
                 }
 
