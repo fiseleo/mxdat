@@ -12,12 +12,10 @@ namespace mxdat
     {
         public static void EliminateRaidOpponentListjsonMain(string[] args)
         {
-            // Check current time and pause the program if necessary
             CheckAndPauseAt3AM();
-
-            // Step 1: Check and create EliminateRaidOpponentList directory if not exists
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string jsonFolderPath = Path.Combine(rootDirectory, "EliminateRaidOpponentList");
+
             if (!Directory.Exists(jsonFolderPath))
             {
                 Directory.CreateDirectory(jsonFolderPath);
@@ -28,7 +26,6 @@ namespace mxdat
                 Console.WriteLine("EliminateRaidOpponentList folder already exists");
             }
 
-            // Step 2: Process all JSON files in EliminateRaidOpponentList directory
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("JP_EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("JP_EliminateRaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
@@ -41,7 +38,7 @@ namespace mxdat
             {
                 if (Path.GetFileName(file).Equals("JP_EliminateRaidOpponentList20056.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Reached EliminateRaidOpponentList20056.json, stopping further processing.");
+                    Console.WriteLine("Reached JP_EliminateRaidOpponentList20056.json, stopping further processing.");
                     break;
                 }
 
@@ -49,9 +46,15 @@ namespace mxdat
                 {
                     string jsonContent = File.ReadAllText(file);
                     JObject jsonObject = JObject.Parse(jsonContent);
-                    JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
 
-                    combinedOpponents.Merge(opponents);
+                    // 解析 "packet" 欄位中的嵌套 JSON
+                    if (jsonObject.TryGetValue("packet", out JToken packetToken))
+                    {
+                        JObject packetObject = JObject.Parse(packetToken.ToString());
+                        JArray opponents = (JArray)packetObject["OpponentUserDBs"];
+                        combinedOpponents.Merge(opponents);
+                    }
+
                     Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
                 }
                 catch (Exception ex)
@@ -84,7 +87,7 @@ namespace mxdat
             }
             else
             {
-                throw new FormatException($"The file name '{fileName}' does not contain a valid number.");
+                throw new FormatException($"File name '{fileName}' does not contain valid numbers.");
             }
         }
 
@@ -131,7 +134,7 @@ namespace mxdat
             DateTime today3AM = now.Date.AddHours(3);
             if (now > today3AM)
             {
-                today3AM = today3AM.AddDays(1); // Calculate time to next 3 AM
+                today3AM = today3AM.AddDays(1);
             }
 
             TimeSpan timeTo3AM = today3AM - now;
