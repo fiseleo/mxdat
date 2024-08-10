@@ -65,15 +65,15 @@ namespace mxdat
 
             ProcessAndOutputData(combinedOpponents);
 
-            if (RaidOpponentList.isfinishloop)
+            if (EliminateRaidOpponentList.isfinishloop)
             {
-                RaidOpponentList.shouldContinue = false;
-                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                EliminateRaidOpponentList.shouldContinue = false;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
             else
             {
-                RaidOpponentList.shouldContinue = true;
-                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                EliminateRaidOpponentList.shouldContinue = true;
+                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
         }
 
