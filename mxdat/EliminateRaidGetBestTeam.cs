@@ -2,8 +2,7 @@ using mxdat.NetworkProtocol;
 using RestSharp;
 using System.Net;
 using Newtonsoft.Json.Linq;
-using System.IO;
-using System;
+using mxdat;
 
 namespace mxdat
 {
@@ -11,8 +10,9 @@ namespace mxdat
     {
         public static void EliminateRaidGetBestTeamMain(string[] args)
         {
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidGetBestTeam");
             string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
+            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidGetBestTeam");
+
             CheckAndPauseAt3AM();
 
             if (!Directory.Exists(jsonFolderPath))
@@ -23,14 +23,12 @@ namespace mxdat
             else
             {
                 Console.WriteLine("EliminateRaidGetBestTeam folder already exists");
-                foreach(string file in Directory.GetFiles(jsonFolderPath, "*.json"))
+                foreach (string file in Directory.GetFiles(jsonFolderPath, "*.json"))
                 {
                     File.Delete(file);
                 }
-                Console.WriteLine("Existing JSON files deleted from RaidGetBestTeam folder");
+                Console.WriteLine("Existing JSON files deleted from EliminateRaidGetBestTeam folder");
             }
-
-            PacketCryptManager Instance = new PacketCryptManager();
 
             static string ExtractMxToken(string mxdatjson)
             {
@@ -56,14 +54,17 @@ namespace mxdat
                 return accountServerId;
             }
 
-            string mxToken = ExtractMxToken(mxdatjson);
+            string mxtoken = ExtractMxToken(mxdatjson);
+
+            PacketCryptManager Instance = new PacketCryptManager();
+
             long hash = 193282118254630;
             string accountServerId = ExtractAccountId(mxdatjson);
             string accountId = ExtractAccountServerId(mxdatjson);
 
             string baseJson = "{{\"Protocol\": 45003, " +
                 "\"SearchAccountId\": {0}, " +
-                "\"ClientUpTime\": 25, " +
+                "\"ClientUpTime\": 4, " +
                 "\"Resendable\": true, " +
                 "\"Hash\": {1}, " +      // input Hash
                 "\"IsTest\": false, " +
@@ -91,12 +92,13 @@ namespace mxdat
                         break;
                     }
 
-                    long adjustedHash = hash + rank;
+                    long adjustedHash = hash + rank; // Adjust hash with rank
 
-                    string json = string.Format(baseJson, SearchAccountId, hash, mxToken, accountServerId, accountId);
-                    byte[] mx = Instance.RequestToBinary(Protocol.EliminateRaid_GetBestTeam, json);
+                    string json = string.Format(baseJson, SearchAccountId, adjustedHash, mxtoken, accountServerId, accountId);
+                    byte[] mx = Instance.RequestToBinary(Protocol.EliminateRaid_GetBestTeam ,json);
                     string filePath = "mx.dat";
                     File.WriteAllBytes(filePath, mx);
+
                     var client = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
                     client.Timeout = -1;
                     var request = new RestRequest(Method.POST);
@@ -110,33 +112,31 @@ namespace mxdat
                         if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(response.Content))
                         {
                             Console.WriteLine("Empty response or request failed for AccountId: {0}, retrying...", SearchAccountId);
-                            Thread.Sleep(2000);
+                            Thread.Sleep(2000); // Wait for 2 seconds before retrying
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Request failed for AccountId: {0}: {1}, retrying...", SearchAccountId, ex.Message);
-                        Thread.Sleep(2000);
+                        Thread.Sleep(2000); // Wait for 2 seconds before retrying
                         continue;
                     }
-
                     string responseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidGetBest{SearchAccountId}.json");
                     File.WriteAllText(responseFilePath, response.Content);
                     Console.WriteLine($"EliminateRaidGetBest{SearchAccountId}.json created");
 
                     // Upload the JSON content to the server
                     UploadJsonToServer(responseFilePath);
-                    CheckAndPauseAt3AM();
 
                     Thread.Sleep(100);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error reading EliminateRaidOpponentListUserID&Nickname.json: {ex.Message}");
+                Console.WriteLine($"Error reading RaidOpponentListUserID&Nickname.json: {ex.Message}");
             }
-
+            
             if (EliminateRaidOpponentList.shouldContinue)
             {
                 EliminateRaidOpponentList.isfinishloop = false;
@@ -148,7 +148,11 @@ namespace mxdat
                 EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
 
+            
 
+            
+
+            
         }
 
         private static void UploadJsonToServer(string filePath)
@@ -202,6 +206,7 @@ namespace mxdat
             string[] emptyArgs = new string[0];
             Decryptmxdat.DecryptMain(emptyArgs);
         }
+
 
 
     }

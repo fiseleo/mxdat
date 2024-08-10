@@ -12,11 +12,9 @@ namespace mxdat
     {
         public static void EliminateRaidOpponentListjsonMain(string[] args)
         {
-            // Check current time and pause the program if necessary
             CheckAndPauseAt3AM();
-
-            // Step 1: Check and create EliminateRaidOpponentList directory if not exists
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
+
             if (!Directory.Exists(jsonFolderPath))
             {
                 Directory.CreateDirectory(jsonFolderPath);
@@ -27,7 +25,6 @@ namespace mxdat
                 Console.WriteLine("EliminateRaidOpponentList folder already exists");
             }
 
-            // Step 2: Process all JSON files in EliminateRaidOpponentList directory
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json")
                                           .Where(file => !Path.GetFileName(file).Equals("EliminateRaidOpponentList.json", StringComparison.OrdinalIgnoreCase)
                                                       && !Path.GetFileName(file).Equals("EliminateRaidOpponentListUserID&Nickname.json", StringComparison.OrdinalIgnoreCase))
@@ -38,9 +35,9 @@ namespace mxdat
 
             foreach (string file in jsonFiles)
             {
-                if (Path.GetFileName(file).Equals("EliminateRaidOpponentList10006.json", StringComparison.OrdinalIgnoreCase))
+                if (Path.GetFileName(file).Equals("EliminateRaidOpponentList10036.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Reached EliminateRaidOpponentList10006.json, stopping further processing.");
+                    Console.WriteLine("Reached EliminateRaidOpponentList10036.json, stopping further processing.");
                     break;
                 }
 
@@ -48,9 +45,15 @@ namespace mxdat
                 {
                     string jsonContent = File.ReadAllText(file);
                     JObject jsonObject = JObject.Parse(jsonContent);
-                    JArray opponents = (JArray)jsonObject["OpponentUserDBs"];
 
-                    combinedOpponents.Merge(opponents);
+                    // 解析 "packet" 欄位中的嵌套 JSON
+                    if (jsonObject.TryGetValue("packet", out JToken packetToken))
+                    {
+                        JObject packetObject = JObject.Parse(packetToken.ToString());
+                        JArray opponents = (JArray)packetObject["OpponentUserDBs"];
+                        combinedOpponents.Merge(opponents);
+                    }
+
                     Console.WriteLine($"Processed contents of {Path.GetFileName(file)}.");
                 }
                 catch (Exception ex)
@@ -61,15 +64,15 @@ namespace mxdat
 
             ProcessAndOutputData(combinedOpponents);
 
-            if (EliminateRaidOpponentList.isfinishloop)
+            if (RaidOpponentList.isfinishloop)
             {
-                EliminateRaidOpponentList.shouldContinue = false;
-                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                RaidOpponentList.shouldContinue = false;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
             else
             {
-                EliminateRaidOpponentList.shouldContinue = true;
-                EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
+                RaidOpponentList.shouldContinue = true;
+                RaidOpponentList.RaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
         }
 
@@ -83,7 +86,7 @@ namespace mxdat
             }
             else
             {
-                throw new FormatException($"The file name '{fileName}' does not contain a valid number.");
+                throw new FormatException($"File name '{fileName}' does not contain valid numbers.");
             }
         }
 
@@ -130,7 +133,7 @@ namespace mxdat
             DateTime today3AM = now.Date.AddHours(3);
             if (now > today3AM)
             {
-                today3AM = today3AM.AddDays(1); // Calculate time to next 3 AM
+                today3AM = today3AM.AddDays(1);
             }
 
             TimeSpan timeTo3AM = today3AM - now;

@@ -9,9 +9,9 @@ namespace mxdat
     public class EliminateRaidOpponentList
     {
         public static bool shouldContinue = false; // New flag variable
-        public static bool isfinishloop = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
         public static int rankValue = 1;
+        public static bool isfinishloop = false;
 
         public static void EliminateRaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
