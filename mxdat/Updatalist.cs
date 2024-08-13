@@ -1,17 +1,18 @@
-
+using System;
+using System.IO;
 using System.Text;
-using mxdat;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Collections.Generic;
 
 namespace mxdat
 {
     class Updatalist
     {
         static readonly string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        static readonly string jsonDirectory = Path.Combine(rootDirectory,"Updata"); // Relative path: Updata folder
-        static readonly List<string> sourceDirectories = new List<string> { rootDirectory,"mxdatpy","extracted","Excel" }; // All source directories
+        static readonly string jsonDirectory = Path.Combine(rootDirectory, "Updata"); // Relative path: Updata folder
+        static readonly List<string> sourceDirectories = new List<string> { Path.Combine(rootDirectory, "mxdatpy", "extracted", "Excel") }; // All source directories
         static readonly string serverUrl = "http://35.247.55.157:9876/";
         static readonly string token = "]4]88Nft9*wn";
         static readonly List<string> fileNames = new List<string>
@@ -26,8 +27,6 @@ namespace mxdat
 
             // Run the job immediately
             Job(args);
-
-            
         }
 
         static void EnsureDirectoryExists(string directory)
@@ -39,7 +38,7 @@ namespace mxdat
             }
         }
 
-        static void CopyFilesToUpdata()
+        static void CopyAndRenameFilesToUpdata()
         {
             EnsureDirectoryExists(jsonDirectory);
 
@@ -52,7 +51,7 @@ namespace mxdat
                     {
                         string destFilePath = Path.Combine(jsonDirectory, fileName);
                         File.Copy(sourceFilePath, destFilePath, true);
-                        Console.WriteLine($"Copied {sourceFilePath} to {jsonDirectory}");
+                        Console.WriteLine($"Copied and renamed {sourceFilePath} to {destFilePath}");
                     }
                 }
             }
@@ -88,14 +87,14 @@ namespace mxdat
                 // Check JSON structure and add protocol field
                 if (jsonObject.Type == JTokenType.Object)
                 {
-                    ((JObject)jsonObject)["protocol"] = Path.GetFileName(filePath);
+                    ((JObject)jsonObject)["protocol"] = Path.GetFileName($"{filePath}");
                 }
                 else if (jsonObject.Type == JTokenType.Array)
                 {
                     jsonObject = new JObject
                     {
                         ["Data"] = jsonObject,
-                        ["protocol"] = Path.GetFileName(filePath)
+                        ["protocol"] = Path.GetFileName($"{filePath}")
                     };
                 }
 
@@ -127,10 +126,9 @@ namespace mxdat
 
         static void Job(string[] args)
         {
-            CopyFilesToUpdata();
+            CopyAndRenameFilesToUpdata();
             UploadFiles();
             Getlist.GetlistMain(args);
         }
-
     }
 }
