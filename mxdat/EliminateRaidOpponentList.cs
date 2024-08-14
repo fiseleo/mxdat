@@ -9,11 +9,9 @@ namespace mxdat
     public class EliminateRaidOpponentList
     {
         public static bool shouldContinue = false; // New flag variable
-        public static bool isfinishloop = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
         public static int rankValue = 1;
-
-        public static bool finalloop = false;
+        public static bool isfinishloop = false;
 
         public static void EliminateRaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
@@ -32,7 +30,6 @@ namespace mxdat
                 
                 Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
                 ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
-
             }
             else
             {
@@ -42,9 +39,8 @@ namespace mxdat
 
         private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
         {
-            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string mxdatjson = Path.Combine(rootDirectory, "mxdat.json");
-            string jsonFolderPath = Path.Combine(rootDirectory, "EliminateRaidOpponentList");
+            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
+            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
 
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -113,56 +109,6 @@ namespace mxdat
                     return; // Stop the current method execution
                 }
 
-                DateTime now = DateTime.Now;
-                if (now.Date == seasonEndData.Date && now.Date == settlementEndDate.Date && now.TimeOfDay >= seasonEndData.TimeOfDay && now.TimeOfDay <= settlementEndDate.TimeOfDay)
-                {
-                    // Final loop
-                    Console.WriteLine("This is the final loop");
-                    string finalJson = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
-                    byte[] finalMx = instance.RequestToBinary(Protocol.EliminateRaid_OpponentList, finalJson);
-                    string finalFilePath = "mx.dat";
-                    File.WriteAllBytes(finalFilePath, finalMx);
-
-                    var finalClient = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
-                    finalClient.Timeout = -1;
-                    var finalRequest = new RestRequest(Method.POST);
-                    finalRequest.AddHeader("mx", "1");
-                    finalRequest.AddFile("mx", finalFilePath);
-
-                    IRestResponse finalResponse = null;
-                    try
-                    {
-                        finalResponse = finalClient.Execute(finalRequest);
-                        if (finalResponse.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(finalResponse.Content))
-                        {
-                            Console.WriteLine("Response is empty or request failed, retrying...");
-                            Thread.Sleep(2000); // Wait 2 seconds before retrying
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Request failed: {ex.Message}, retrying...");
-                        Thread.Sleep(2000); // Wait 2 seconds before retrying
-                        continue;
-                    }
-
-                    if (!finalResponse.Content.Contains("OpponentUserDBs"))
-                    {
-                        Console.WriteLine(finalResponse.Content);
-                        Console.WriteLine("No player information detected");
-                        finalloop = true; // Set flag variable
-                        EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(args);
-                        return; // Stop the current method execution
-                    }
-
-                    string finalResponseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidOpponentList{rankValue}.json");
-                    File.WriteAllText(finalResponseFilePath, finalResponse.Content);
-
-                    // Upload the JSON content to the server
-                    UploadJsonToServer(finalResponseFilePath);
-                }
-
                 // Normal loop logic
                 string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
                 Console.WriteLine($"査排名{rankValue}中...");
@@ -201,7 +147,8 @@ namespace mxdat
                     Console.WriteLine("No player information detected");
                     shouldContinue = true; // Set flag variable
                     isfinishloop = false;
-                    EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(args);
+                    //EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(args);
+                    ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
                     return; // Stop the current method execution
                 }
 
@@ -213,9 +160,10 @@ namespace mxdat
 
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
-                Thread.Sleep(2000); // Wait 900ms before the next iteration
+                Thread.Sleep(900); // Wait 2 seconds before the next iteration
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
+                CheckAndPauseAt3AM();
             }
         }
 
