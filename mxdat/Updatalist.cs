@@ -1,8 +1,10 @@
+using System;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-
+using System.Collections.Generic;
 
 namespace mxdat
 {
@@ -85,15 +87,14 @@ namespace mxdat
                 // Check JSON structure and add protocol field
                 if (jsonObject.Type == JTokenType.Object)
                 {
-                    ((JObject)jsonObject)["protocol"] = $"JP_{Path.GetFileName(filePath)}";
-
+                    ((JObject)jsonObject)["protocol"] = Path.GetFileName($"{filePath}");
                 }
                 else if (jsonObject.Type == JTokenType.Array)
                 {
                     jsonObject = new JObject
                     {
                         ["Data"] = jsonObject,
-                        ["protocol"] = $"JP_{Path.GetFileName(filePath)}"
+                        ["protocol"] = Path.GetFileName($"{filePath}")
                     };
                 }
 
