@@ -148,11 +148,7 @@ namespace mxdat
                 EliminateRaidOpponentList.EliminateRaidOpponentListMain(args, DateTime.MinValue, DateTime.MinValue);
             }
 
-            if (EliminateRaidOpponentList.finalloop)
-            {
-                Decryptmxdat.DecryptMain(args);
-                EliminateRaidOpponentList.finalloop = false;
-            }
+            
 
         }
 
