@@ -1,10 +1,8 @@
-using System;
-using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using System.Collections.Generic;
+
 
 namespace mxdat
 {
@@ -49,8 +47,7 @@ namespace mxdat
                     string sourceFilePath = Path.Combine(sourceDirectory, fileName);
                     if (File.Exists(sourceFilePath))
                     {
-                        string destFileName = $"JP_{fileName}";
-                        string destFilePath = Path.Combine(jsonDirectory, destFileName);
+                        string destFilePath = Path.Combine(jsonDirectory, fileName);
                         File.Copy(sourceFilePath, destFilePath, true);
                         Console.WriteLine($"Copied and renamed {sourceFilePath} to {destFilePath}");
                     }
@@ -88,14 +85,15 @@ namespace mxdat
                 // Check JSON structure and add protocol field
                 if (jsonObject.Type == JTokenType.Object)
                 {
-                    ((JObject)jsonObject)["protocol"] = Path.GetFileName($"JP_{filePath}");
+                    ((JObject)jsonObject)["protocol"] = $"JP_{Path.GetFileName(filePath)}";
+
                 }
                 else if (jsonObject.Type == JTokenType.Array)
                 {
                     jsonObject = new JObject
                     {
                         ["Data"] = jsonObject,
-                        ["protocol"] = Path.GetFileName($"JP_{filePath}")
+                        ["protocol"] = $"JP_{Path.GetFileName(filePath)}"
                     };
                 }
 
