@@ -114,6 +114,8 @@ namespace mxdat
                 string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
                 Console.WriteLine($"査排名{rankValue}中...");
 
+                
+
                 byte[] mx = instance.RequestToBinary(Protocol.EliminateRaid_OpponentList, json);
                 string filePath = "mx.dat";
                 File.WriteAllBytes(filePath, mx);
@@ -142,6 +144,7 @@ namespace mxdat
                     Thread.Sleep(2000); // Wait 2 seconds before retrying
                     continue;
                 }
+
                 if (rankValue == 20055)
                 {
                     rankValue = 120000;
@@ -150,12 +153,17 @@ namespace mxdat
                 {
                     shouldContinue = true;
                     isfinishloop = false;
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
+                    ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
+                    //RaidGetBestTeam.RaidGetBestTeamMain(args);
                     
                 }
 
+
+
+                JObject responseObject = JObject.Parse(response.Content);
+                responseObject["protocol"] = "JP_EliminateRaid_OpponentList";
                 string responseFilePath = Path.Combine(jsonFolderPath, $"JP_EliminateRaidOpponentList{rankValue}.json");
-                File.WriteAllText(responseFilePath, response.Content);
+                File.WriteAllText(responseFilePath, responseObject.ToString());
 
                 // Upload the JSON content to the server
                 UploadJsonToServer(responseFilePath);

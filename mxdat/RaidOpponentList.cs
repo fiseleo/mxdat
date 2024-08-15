@@ -152,11 +152,14 @@ namespace mxdat
                 {
                     shouldContinue = true; // Set flag variable
                     isfinishloop = false;
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
+                    ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
+                    //RaidGetBestTeam.RaidGetBestTeamMain(args);
                     
                 }
                 string responseFilePath = Path.Combine(jsonFolderPath, $"JP_RaidOpponentList{rankValue}.json");
-                File.WriteAllText(responseFilePath, response.Content);
+                JObject responseObject = JObject.Parse(response.Content);
+                responseObject["protocol"] = "JP_Raid_OpponentList";
+                File.WriteAllText(responseFilePath, responseObject.ToString());
                 // Upload the JSON content to the server
                 UploadJsonToServer(responseFilePath);
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
