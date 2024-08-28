@@ -1,16 +1,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace mxdat
 {
-    public class RaidOpponentListjson
+    public class GetFriendDetailedInfo
     {
-        public static void RaidOpponentListjsonMain(string[] args)
+        public static void GetFriendDetailedInfoMain(string[] args)
         {
             CheckAndPauseAt3AM();
             string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");

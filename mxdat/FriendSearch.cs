@@ -1,46 +1,29 @@
 using mxdat.NetworkProtocol;
 using RestSharp;
-using Newtonsoft.Json.Linq;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using System.Text;
 
 namespace mxdat
 {
-    public class EliminateRaidOpponentList
+    public class FriendSearch
     {
         public static bool shouldContinue = false; // New flag variable
         public static int savedRankValue = 1; // Save rank value before pausing
         public static int rankValue = 1;
         public static bool isfinishloop = false;
 
-        public static void EliminateRaidOpponentListMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
+        public static void FriendSearchMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
         {
             Console.OutputEncoding = Encoding.UTF8;
             CheckAndPauseAt3AM();
-
-            if (shouldContinue)
-            {
-                shouldContinue = false;
-                Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue); // Resume with saved rank value
-            }
-            else if (isfinishloop)
-            {
-                isfinishloop = false;
-                
-                Console.WriteLine($"Returning from EliminateRaidOpponentListjson, continuing to execute EliminateRaidOpponentList with rankValue {savedRankValue}");
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
-            }
-            else
-            {
-                ExecuteMainLogic(args, seasonEndData, settlementEndDate, 1);
-            }
+            ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
         }
 
         private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
         {
             string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "EliminateRaidOpponentList");
+            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "FriendSearch");
 
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -79,17 +62,17 @@ namespace mxdat
             }
 
             string mxToken = ExtractMxToken(mxdatjson);
-            long hash = 193286413221927;
-            string accountServerId = ExtractAccountId(mxdatjson);
-            string accountId = ExtractAccountServerId(mxdatjson);
+            long hash = 73083163508766;
+            string accountServerId = ExtractAccountServerId(mxdatjson);
+            string accountId = ExtractAccountId(mxdatjson);
 
-            string baseJson = "{{\"Protocol\": 45002, " +
+            string baseJson = "{{\"Protocol\": 17016, " +
                               "\"Rank\": {0}, " +
                               "\"Score\": null, " +
                               "\"IsUpper\": false, " +
                               "\"IsFirstRequest\": true, " +
                               "\"SearchType\": 1, " +
-                              "\"ClientUpTime\": 25, " +
+                              "\"ClientUpTime\": 4, " +
                               "\"Resendable\": true, " +
                               "\"Hash\": {1}, " +
                               "\"IsTest\": false, " +
@@ -102,10 +85,10 @@ namespace mxdat
             {
                 if (rankValue == 10066)
                 {
-                    Console.WriteLine($"Pausing execution at rankValue {rankValue} to run EliminateRaidOpponentListjson");
-                    savedRankValue = rankValue + 15;
+                    Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
+                    savedRankValue = rankValue - 1;
                     isfinishloop = true;
-                    EliminateRaidOpponentListjson.EliminateRaidOpponentListjsonMain(args);
+                    RaidOpponentListjson.RaidOpponentListjsonMain(args);
                     return; // Stop the current method execution
                 }
 
@@ -113,7 +96,7 @@ namespace mxdat
                 string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
                 Console.WriteLine($"査排名{rankValue}中...");
 
-                byte[] mx = instance.RequestToBinary(Protocol.EliminateRaid_OpponentList, json);
+                byte[] mx = instance.RequestToBinary(Protocol.Raid_OpponentList, json);
                 string filePath = "mx.dat";
                 File.WriteAllBytes(filePath, mx);
 
@@ -130,7 +113,7 @@ namespace mxdat
                     if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(response.Content))
                     {
                         Console.WriteLine("Response is empty or request failed, retrying...");
-                        Thread.Sleep(2000); // Wait 2 seconds before retrying
+                        Thread.Sleep(900); // Wait 2 seconds before retrying
                         continue;
                     }
                 }
@@ -147,16 +130,15 @@ namespace mxdat
                     Console.WriteLine("No player information detected");
                     shouldContinue = true; // Set flag variable
                     isfinishloop = false;
-                    EliminateRaidGetBestTeam.EliminateRaidGetBestTeamMain(args);
+                    RaidGetBestTeam.RaidGetBestTeamMain(args);
                     return; // Stop the current method execution
                 }
 
-                string responseFilePath = Path.Combine(jsonFolderPath, $"EliminateRaidOpponentList{rankValue}.json");
+                string responseFilePath = Path.Combine(jsonFolderPath, $"FriendSearch.json");
                 File.WriteAllText(responseFilePath, response.Content);
 
                 // Upload the JSON content to the server
                 UploadJsonToServer(responseFilePath);
-
                 rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
                 hash++;
                 Thread.Sleep(2000); // Wait 2 seconds before the next iteration
