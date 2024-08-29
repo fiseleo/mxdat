@@ -8,22 +8,21 @@ namespace mxdat
 {
     public class FriendSearch
     {
-        public static bool shouldContinue = false; // New flag variable
-        public static int savedRankValue = 1; // Save rank value before pausing
-        public static int rankValue = 1;
-        public static bool isfinishloop = false;
-
-        public static void FriendSearchMain(string[] args, DateTime seasonEndData, DateTime settlementEndDate)
+        public static void FriendSearchMain(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
             CheckAndPauseAt3AM();
-            ExecuteMainLogic(args, seasonEndData, settlementEndDate, savedRankValue);
+            ExecuteMainLogic(args);
+            // Execute the next method after the main logic completes
+            SaveFriendCodeToFile();
+            GetFriendDetailedInfo.GetFriendDetailedInfoMain(args);
         }
 
-        private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
+        private static void ExecuteMainLogic(string[] args)
         {
-            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "FriendSearch");
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string mxdatjson = Path.Combine(rootDirectory, "mxdat.json");
+            string jsonFolderPath = Path.Combine(rootDirectory, "FriendSearch");
 
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -61,18 +60,17 @@ namespace mxdat
                 return accountServerId;
             }
 
+            
+
             string mxToken = ExtractMxToken(mxdatjson);
-            long hash = 73083163508766;
+            long hash = 184705068564508;
             string accountServerId = ExtractAccountServerId(mxdatjson);
             string accountId = ExtractAccountId(mxdatjson);
 
-            string baseJson = "{{\"Protocol\": 17016, " +
-                              "\"Rank\": {0}, " +
-                              "\"Score\": null, " +
-                              "\"IsUpper\": false, " +
-                              "\"IsFirstRequest\": true, " +
-                              "\"SearchType\": 1, " +
-                              "\"ClientUpTime\": 4, " +
+            string baseJson = "{{\"Protocol\": 43005, " +
+                              "\"FriendCode\": \"{0}\", " +
+                              "\"LevelOption\": 0, " +
+                              "\"ClientUpTime\": 1, " +
                               "\"Resendable\": true, " +
                               "\"Hash\": {1}, " +
                               "\"IsTest\": false, " +
@@ -81,99 +79,72 @@ namespace mxdat
                               "\"MxToken\": \"{2}\"}}, " +
                               "\"AccountId\": \"{4}\"}}";
 
-            while (true)
-            {
-                if (rankValue == 10066)
-                {
-                    Console.WriteLine($"Pausing execution at rankValue {rankValue} to run RaidOpponentListjson");
-                    savedRankValue = rankValue - 1;
-                    isfinishloop = true;
-                    RaidOpponentListjson.RaidOpponentListjsonMain(args);
-                    return; // Stop the current method execution
-                }
+            // Execute the loop logic just once
+            string json = string.Format(baseJson, ReadFriendCodeFromFile(rootDirectory), hash, mxToken, accountServerId, accountId);
+            byte[] mx = instance.RequestToBinary(Protocol.Friend_Search, json);
+            string filePath = "mx.dat";
+            File.WriteAllBytes(filePath, mx);
 
-                // Normal loop logic
-                string json = string.Format(baseJson, rankValue, hash, mxToken, accountServerId, accountId);
-                Console.WriteLine($"査排名{rankValue}中...");
+            var client = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("mx", "1");
+            request.AddFile("mx", filePath);
 
-                byte[] mx = instance.RequestToBinary(Protocol.Raid_OpponentList, json);
-                string filePath = "mx.dat";
-                File.WriteAllBytes(filePath, mx);
-
-                var client = new RestClient("https://nxm-tw-bagl.nexon.com:5000/api/gateway");
-                client.Timeout = -1;
-                var request = new RestRequest(Method.POST);
-                request.AddHeader("mx", "1");
-                request.AddFile("mx", filePath);
-
-                IRestResponse response = null;
-                try
-                {
-                    response = client.Execute(request);
-                    if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(response.Content))
-                    {
-                        Console.WriteLine("Response is empty or request failed, retrying...");
-                        Thread.Sleep(900); // Wait 2 seconds before retrying
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Request failed: {ex.Message}, retrying...");
-                    Thread.Sleep(2000); // Wait 2 seconds before retrying
-                    continue;
-                }
-
-                if (!response.Content.Contains("OpponentUserDBs"))
-                {
-                    Console.WriteLine(response.Content);
-                    Console.WriteLine("No player information detected");
-                    shouldContinue = true; // Set flag variable
-                    isfinishloop = false;
-                    RaidGetBestTeam.RaidGetBestTeamMain(args);
-                    return; // Stop the current method execution
-                }
-
-                string responseFilePath = Path.Combine(jsonFolderPath, $"FriendSearch.json");
-                File.WriteAllText(responseFilePath, response.Content);
-
-                // Upload the JSON content to the server
-                UploadJsonToServer(responseFilePath);
-                rankValue = (rankValue == 1) ? rankValue + 15 : rankValue + 30;
-                hash++;
-                Thread.Sleep(2000); // Wait 2 seconds before the next iteration
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                CheckAndPauseAt3AM();
-            }
-        }
-
-        private static void UploadJsonToServer(string filePath)
-        {
-            string serverUrl = "http://35.247.55.157:9876";
-            string token = "]4]88Nft9*wn";
-
+            IRestResponse response = null;
             try
             {
-                string jsonData = File.ReadAllText(filePath);
-                var client = new RestClient(serverUrl);
-                var request = new RestRequest(Method.POST);
-                request.AddParameter("application/json", jsonData, ParameterType.RequestBody);
-                request.AddHeader("Token", token);
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("User-Agent", "PostmanRuntime/7.39.0");
-                request.AddHeader("Connection", "keep-alive");
-                request.AddHeader("Accept-Encoding", "gzip, deflate, br");
-
-                IRestResponse response = client.Execute(request);
-                Console.WriteLine($"Uploaded {filePath} to server, response status code: {response.StatusCode}");
-                Console.WriteLine($"Response content: {response.Content}");
+                response = client.Execute(request);
+                if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(response.Content))
+                {
+                    Console.WriteLine("Response is empty or request failed, retrying...");
+                    Thread.Sleep(900); // Wait 2 seconds before retrying
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to upload {filePath} to server: {ex.Message}");
+                Console.WriteLine($"Request failed: {ex.Message}, retrying...");
+                Thread.Sleep(2000); // Wait 2 seconds before retrying
+            }
+
+            string responseFilePath = Path.Combine(jsonFolderPath, $"FriendSearch.json");
+            File.WriteAllText(responseFilePath, response.Content);
+            Thread.Sleep(1000); // Wait 2 seconds before the next iteration
+            CheckAndPauseAt3AM();
+        }
+        private static string ReadFriendCodeFromFile(string rootDirectory)
+        {
+            string FriendCodeFilePath = Path.Combine(rootDirectory, "FriendCode.txt");
+            if (!File.Exists(FriendCodeFilePath))
+            {
+                throw new FileNotFoundException("FriendCode.txt file not found.");
+            }
+            string FriendCode = File.ReadAllText(FriendCodeFilePath).Trim();
+            if (string.IsNullOrEmpty(FriendCode))
+            {
+                throw new InvalidOperationException("FriendCode.txt is empty or contains invalid data.");
+            }
+            return FriendCode;
+        }
+
+        private static void SaveFriendCodeToFile()
+        {
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string FCode = ReadFriendCodeFromFile(rootDirectory);
+            string saveFriendCodeFilePath = Path.Combine(rootDirectory, "SaveFriendCode.txt");
+
+            try
+            {
+                File.WriteAllText(saveFriendCodeFilePath, FCode);
+                Console.WriteLine($"FriendCode saved to {saveFriendCodeFilePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to save FriendCode: {ex.Message}");
             }
         }
+
+        
 
         private static void CheckAndPauseAt3AM()
         {
@@ -189,15 +160,15 @@ namespace mxdat
             {
                 Console.WriteLine("Approaching 3 AM, pausing the program for 60 minutes...");
                 Thread.Sleep(TimeSpan.FromMinutes(60));
-                ExecuteDecryptmxdat();
+                ExecuteMain();
             }
         }
 
-        private static void ExecuteDecryptmxdat()
+        private static void ExecuteMain()
         {
             Console.WriteLine("Running Decryptmxdat...");
             string[] emptyArgs = new string[0];
-            Decryptmxdat.DecryptMain(emptyArgs);
+            main.Main(emptyArgs);
         }
     }
 }

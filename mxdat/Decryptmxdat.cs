@@ -7,8 +7,10 @@ namespace mxdat
     public class Decryptmxdat
     {
         public static async void DecryptMain(string[] args)
+        
         {
-            string filePath = @"C:\ba\mx.dat";
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath = Path.Combine(rootDirectory,"mx", "mx.dat");
             byte[] mx = File.ReadAllBytes(filePath);
             byte[] reqBytes = new byte[mx.Length - 12];
             Array.Copy(mx, 12, reqBytes, 0, mx.Length - 12);
@@ -32,12 +34,9 @@ namespace mxdat
 
             string jsonText = Encoding.UTF8.GetString(decompressedBytes);
             Console.WriteLine(jsonText);
-            File.WriteAllText("mxdat.json", jsonText);
-
-            GetNexonServerjson.GetNexonServerjsonMain(args);
-        }
-
-        
-     
+            string jsonFilePath = Path.Combine(rootDirectory, "mxdat.json");
+            File.WriteAllText(jsonFilePath, jsonText);
+            FriendSearch.FriendSearchMain(args);
+        } 
     }
 }
