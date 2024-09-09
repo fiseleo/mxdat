@@ -10,7 +10,7 @@ namespace mxdat
         {
             string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             // Use the system's Python interpreter
-            string pythonInterpreter = "python3";
+            string pythonInterpreter = "python";
             string pythonScriptRelativePath = Path.Combine(rootDirectory,"mxdatpy", "local_info.py");
             string fullPathToPythonScript = Path.GetFullPath(Path.Combine(rootDirectory, pythonScriptRelativePath));
             Console.WriteLine($"Python Interpreter Path: {pythonInterpreter}");

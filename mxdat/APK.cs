@@ -29,7 +29,7 @@ class APK
             return;
         }
 
-        string pythonInterpreter = "python3";
+        string pythonInterpreter = "python";
         string pythonScriptRelativePath = Path.Combine(rootDirectory,"mxdatpy", "download_apk.py");
         string currentDirectory = Environment.CurrentDirectory;
         string fullPathToPythonScript = Path.GetFullPath(Path.Combine(currentDirectory, pythonScriptRelativePath));

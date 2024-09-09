@@ -36,7 +36,7 @@ namespace mxdat
             }
 
             // Use the system's Python interpreter
-            string pythonInterpreter = "python3";
+            string pythonInterpreter = "python";
             string pythonScriptRelativePath = Path.Combine(rootDirectory,"mxdatpy", "extract_tables.py");
             string fullPathToPythonScript = Path.GetFullPath(Path.Combine(rootDirectory, pythonScriptRelativePath));
             Console.WriteLine($"Python Interpreter Path: {pythonInterpreter}");

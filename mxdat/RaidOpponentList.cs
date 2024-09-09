@@ -144,11 +144,11 @@ namespace mxdat
                     Thread.Sleep(2000); // Wait 2 seconds before retrying
                     continue;
                 }
-                if (rankValue == 20055)
+                if (rankValue >= 20100 && rankValue <= 120000)
                 {
-                    rankValue = 120000;
+                    rankValue = 120001;
                 }
-                if (rankValue == 120060)
+                if (rankValue > 120200)
                 {
                     shouldContinue = true; // Set flag variable
                     isfinishloop = false;

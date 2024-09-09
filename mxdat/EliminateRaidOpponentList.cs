@@ -145,11 +145,11 @@ namespace mxdat
                     continue;
                 }
 
-                if (rankValue == 20055)
+                if (rankValue >= 20100 && rankValue <= 120000)
                 {
-                    rankValue = 120000;
+                    rankValue = 120001;
                 }
-                if (rankValue == 120060)
+                if (rankValue > 120200)
                 {
                     shouldContinue = true;
                     isfinishloop = false;
