@@ -25,7 +25,7 @@ namespace mxdat
         public static SeasonData GetClosestSeason()
         {
             string rootPath = AppDomain.CurrentDomain.BaseDirectory;
-            string sourcePath = Path.Combine(rootPath, "mxdatpy", "extracted", "Excel");
+            string sourcePath = Path.Combine(rootPath, "extracted_excels");
             string eliminatorFileName = "EliminateRaidSeasonManageExcelTable.json";
             string raidSeasonFileName = "RaidSeasonManageExcelTable.json";
 

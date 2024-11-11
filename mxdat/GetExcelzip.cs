@@ -1,5 +1,8 @@
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using Ionic.Zip;
+using SCHALE.Common.Crypto;
+using System.Text;
 
 namespace mxdat
 {
@@ -9,9 +12,23 @@ namespace mxdat
         {
             try
             {
+                // Register the code page provider to support IBM437 encoding
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
                 string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string resourcejsonFilePath = Path.Combine(rootDirectory, "resource.json");
                 string ExeclzipPath = Path.Combine(rootDirectory, "Excel.zip");
+                string targetDirectoryPath = Path.Combine(rootDirectory,"extracted");
+                if (!Directory.Exists(targetDirectoryPath))
+                {
+                    Directory.CreateDirectory(targetDirectoryPath);
+                }
+                else
+                {
+                    Console.WriteLine("Directory already exists");
+                }
+
+
                 string jsonContent = File.ReadAllText(resourcejsonFilePath);
                 var jsonObject = JObject.Parse(jsonContent);
                 string resourcePath = jsonObject["patch"].Value<string>("resource_path");
@@ -32,7 +49,17 @@ namespace mxdat
                 else
                 {
                     Console.WriteLine("Failed to download Excel.zip");
+                    return;
                 }
+
+                // Unzip the Excel.zip using DotNetZip
+                using (var zip = new ZipFile(ExeclzipPath))
+                {
+                    zip.Password = Convert.ToBase64String(TableService.CreatePassword(Path.GetFileName(ExeclzipPath)));
+                    zip.ExtractAll(targetDirectoryPath, ExtractExistingFileAction.OverwriteSilently);
+                }
+                
+                Console.WriteLine("Excel files extracted successfully");
             }
             catch (Exception ex)
             {

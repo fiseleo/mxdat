@@ -12,7 +12,7 @@ namespace mxdat
     {
         static readonly string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
         static readonly string jsonDirectory = Path.Combine(rootDirectory, "Updata"); // Relative path: Updata folder
-        static readonly List<string> sourceDirectories = new List<string> { Path.Combine(rootDirectory, "mxdatpy", "extracted", "Excel") }; // All source directories
+        static readonly List<string> sourceDirectories = new List<string> { Path.Combine(rootDirectory, "extracted_excels") }; // All source directories
         static readonly string serverUrl = "http://35.247.55.157:9876/";
         static readonly string token = "]4]88Nft9*wn";
         static readonly List<string> fileNames = new List<string>
@@ -38,7 +38,44 @@ namespace mxdat
             }
         }
 
-        static void CopyAndRenameFilesToUpdata()
+        static void ProcessFilesInSourceDirectories()
+        {
+            foreach (var sourceDirectory in sourceDirectories)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    string sourceFilePath = Path.Combine(sourceDirectory, fileName);
+                    if (File.Exists(sourceFilePath))
+                    {
+                        // Read the JSON file
+                        string jsonData = File.ReadAllText(sourceFilePath, Encoding.UTF8);
+                        JToken jsonObject;
+
+                        try
+                        {
+                            jsonObject = JToken.Parse(jsonData);
+                        }
+                        catch (JsonReaderException)
+                        {
+                            Console.WriteLine($"File {sourceFilePath} is not a valid JSON, skipping.");
+                            continue;
+                        }
+
+                        // If the JSON contains a DataList property, extract its contents
+                        if (jsonObject.Type == JTokenType.Object && jsonObject["DataList"] != null)
+                        {
+                            jsonObject = jsonObject["DataList"];
+                        }
+
+                        // Save processed JSON to source directory
+                        File.WriteAllText(sourceFilePath, jsonObject.ToString(), Encoding.UTF8);
+                        Console.WriteLine($"Processed {sourceFilePath} and updated original file");
+                    }
+                }
+            }
+        }
+
+        static void ProcessAndCopyFilesToUpdata()
         {
             EnsureDirectoryExists(jsonDirectory);
 
@@ -49,9 +86,30 @@ namespace mxdat
                     string sourceFilePath = Path.Combine(sourceDirectory, fileName);
                     if (File.Exists(sourceFilePath))
                     {
+                        // Read the JSON file
+                        string jsonData = File.ReadAllText(sourceFilePath, Encoding.UTF8);
+                        JToken jsonObject;
+
+                        try
+                        {
+                            jsonObject = JToken.Parse(jsonData);
+                        }
+                        catch (JsonReaderException)
+                        {
+                            Console.WriteLine($"File {sourceFilePath} is not a valid JSON, skipping.");
+                            continue;
+                        }
+
+                        // If the JSON contains a DataList property, extract its contents
+                        if (jsonObject.Type == JTokenType.Object && jsonObject["DataList"] != null)
+                        {
+                            jsonObject = jsonObject["DataList"];
+                        }
+
+                        // Save processed JSON to destination directory
                         string destFilePath = Path.Combine(jsonDirectory, fileName);
-                        File.Copy(sourceFilePath, destFilePath, true);
-                        Console.WriteLine($"Copied and renamed {sourceFilePath} to {destFilePath}");
+                        File.WriteAllText(destFilePath, jsonObject.ToString(), Encoding.UTF8);
+                        Console.WriteLine($"Processed and copied {sourceFilePath} to {destFilePath}");
                     }
                 }
             }
@@ -84,18 +142,20 @@ namespace mxdat
                     continue;
                 }
 
-                // Check JSON structure and add protocol field
-                if (jsonObject.Type == JTokenType.Object)
+                // Add protocol field to each object in the array if JSON is an array
+                if (jsonObject.Type == JTokenType.Array)
                 {
-                    ((JObject)jsonObject)["protocol"] = Path.GetFileName($"{filePath}");
-                }
-                else if (jsonObject.Type == JTokenType.Array)
-                {
-                    jsonObject = new JObject
+                    foreach (var item in jsonObject)
                     {
-                        ["Data"] = jsonObject,
-                        ["protocol"] = Path.GetFileName($"{filePath}")
-                    };
+                        if (item.Type == JTokenType.Object)
+                        {
+                            ((JObject)item)["protocol"] = Path.GetFileName(filePath);
+                        }
+                    }
+                }
+                else if (jsonObject.Type == JTokenType.Object)
+                {
+                    ((JObject)jsonObject)["protocol"] = Path.GetFileName(filePath);
                 }
 
                 // Save modified JSON file
@@ -126,7 +186,8 @@ namespace mxdat
 
         static void Job(string[] args)
         {
-            CopyAndRenameFilesToUpdata();
+            ProcessFilesInSourceDirectories();
+            ProcessAndCopyFilesToUpdata();
             UploadFiles();
             Getlist.GetlistMain(args);
         }
