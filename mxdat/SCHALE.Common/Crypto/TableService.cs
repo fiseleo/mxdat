@@ -35,7 +35,7 @@ namespace SCHALE.Common.Crypto
             return password;
         }
 
-#if DEBUG
+//#if DEBUG
         public static void DumpExcels(string bytesDir, string destDir)
         {
             foreach (var type in Assembly.GetAssembly(typeof(AcademyFavorScheduleExcelTable))!.GetTypes().Where(t => t.IsAssignableTo(typeof(IFlatbufferObject)) && t.Name.EndsWith("ExcelTable")))
@@ -56,6 +56,6 @@ namespace SCHALE.Common.Crypto
                 Console.WriteLine($"Dumped {type.Name} successfully");
             }
         }
-#endif
+//#endif
     }
 }

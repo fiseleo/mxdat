@@ -1,5 +1,7 @@
 using System.Reflection;
 using SCHALE.Common.Crypto;
+using System.IO;
+
 namespace mxdat
 {
     public class pythonScipt
@@ -30,10 +32,23 @@ namespace mxdat
                 // Use DumpExcels method to extract Excel.zip
                 string bytesDir = targetDirectoryPath;
                 string destDir = Path.Combine(rootDirectory, "extracted_excels");
+
+                // Check if the directories are valid
+                if (string.IsNullOrEmpty(bytesDir) || string.IsNullOrEmpty(destDir))
+                {
+                    Console.WriteLine("Error: Directory path cannot be null or empty.");
+                    return;
+                }
+
                 if (!Directory.Exists(destDir))
                 {
                     Directory.CreateDirectory(destDir);
                 }
+
+                Console.WriteLine($"Bytes Directory: {bytesDir}");
+                Console.WriteLine($"Destination Directory: {destDir}");
+                
+                // Dump the excels
                 TableService.DumpExcels(bytesDir, destDir);
                 Console.WriteLine("Excel files extracted successfully");
 
