@@ -106,6 +106,22 @@ namespace mxdat
                             jsonObject = jsonObject["DataList"];
                         }
 
+                        // Add protocol field to the JSON object
+                        if (jsonObject.Type == JTokenType.Array)
+                        {
+                            foreach (var item in jsonObject)
+                            {
+                                if (item.Type == JTokenType.Object && !((JObject)item).ContainsKey("protocol"))
+                                {
+                                    ((JObject)item).Add("protocol", fileName);
+                                }
+                            }
+                        }
+                        else if (jsonObject.Type == JTokenType.Object && !((JObject)jsonObject).ContainsKey("protocol"))
+                        {
+                            ((JObject)jsonObject).Add("protocol", fileName);
+                        }
+
                         // Save processed JSON to destination directory
                         string destFilePath = Path.Combine(jsonDirectory, fileName);
                         File.WriteAllText(destFilePath, jsonObject.ToString(), Encoding.UTF8);
@@ -140,22 +156,6 @@ namespace mxdat
                 {
                     Console.WriteLine($"File {filePath} is not a valid JSON, skipping.");
                     continue;
-                }
-
-                // Add protocol field to each object in the array if JSON is an array
-                if (jsonObject.Type == JTokenType.Array)
-                {
-                    foreach (var item in jsonObject)
-                    {
-                        if (item.Type == JTokenType.Object)
-                        {
-                            ((JObject)item)["protocol"] = Path.GetFileName(filePath);
-                        }
-                    }
-                }
-                else if (jsonObject.Type == JTokenType.Object)
-                {
-                    ((JObject)jsonObject)["protocol"] = Path.GetFileName(filePath);
                 }
 
                 // Save modified JSON file
