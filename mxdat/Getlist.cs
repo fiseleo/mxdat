@@ -6,6 +6,12 @@ using System.Threading;
 
 namespace mxdat
 {
+
+    public class SeasonDataList
+    {
+        [JsonProperty("DataList")]
+        public List<SeasonData> DataList { get; set; }
+    }
     public class SeasonData
     {
         public int SeasonId { get; set; }
@@ -36,25 +42,25 @@ namespace mxdat
             string eliminateRaidSeasonJson = File.ReadAllText(sourceEliminatorFilePath);
             string raidSeasonJson = File.ReadAllText(sourceRaidSeasonFilePath);
 
-            // Deserialize JSON data
-            var eliminateRaidSeasons = JsonConvert.DeserializeObject<List<SeasonData>>(eliminateRaidSeasonJson);
-            var raidSeasons = JsonConvert.DeserializeObject<List<SeasonData>>(raidSeasonJson);
+            // Deserialize JSON data into SeasonDataList
+            var eliminateRaidSeasonsWrapper = JsonConvert.DeserializeObject<SeasonDataList>(eliminateRaidSeasonJson);
+            var raidSeasonsWrapper = JsonConvert.DeserializeObject<SeasonDataList>(raidSeasonJson);
 
-            // Assign SourceFile property
-            foreach (var season in eliminateRaidSeasons)
+            // Assign SourceFile property for each season in the lists
+            foreach (var season in eliminateRaidSeasonsWrapper.DataList)
             {
                 season.SourceFile = eliminatorFileName;
             }
 
-            foreach (var season in raidSeasons)
+            foreach (var season in raidSeasonsWrapper.DataList)
             {
                 season.SourceFile = raidSeasonFileName;
             }
 
             // Combine both lists
             var combinedSeasons = new List<SeasonData>();
-            combinedSeasons.AddRange(eliminateRaidSeasons);
-            combinedSeasons.AddRange(raidSeasons);
+            combinedSeasons.AddRange(eliminateRaidSeasonsWrapper.DataList);
+            combinedSeasons.AddRange(raidSeasonsWrapper.DataList);
 
             // Handle OpenRaidBossGroup differences
             foreach (var season in combinedSeasons)
@@ -94,6 +100,7 @@ namespace mxdat
 
             return closestSeason;
         }
+
 
         public static void GetlistMain(string[] args)
         {

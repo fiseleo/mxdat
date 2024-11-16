@@ -49,8 +49,9 @@ namespace mxdat
 
             var response = client.Execute(request);
             Console.WriteLine(response.Content);
+            string resourcejsonPath = Path.Combine(rootDirectory ,"resource.json");
 
-            File.WriteAllText("resource.json", response.Content);
+            File.WriteAllText(resourcejsonPath, response.Content);
 
             GetExcelzip.GetExcelzipMain(args);
 

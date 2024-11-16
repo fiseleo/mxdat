@@ -39,8 +39,9 @@ namespace mxdat
 
         private static void ExecuteMainLogic(string[] args, DateTime seasonEndData, DateTime settlementEndDate, int rankValue)
         {
-            string mxdatjson = Path.Combine(Directory.GetCurrentDirectory(), "mxdat.json");
-            string jsonFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "RaidOpponentList");
+            string rootPath = AppDomain.CurrentDomain.BaseDirectory;
+            string mxdatjson = Path.Combine(rootPath, "mxdat.json");
+            string jsonFolderPath = Path.Combine(rootPath, "RaidOpponentList");
 
             if (!Directory.Exists(jsonFolderPath))
             {
@@ -169,7 +170,7 @@ namespace mxdat
 
         private static void UploadJsonToServer(string filePath)
         {
-            string serverUrl = "http://35.247.55.157:9876";
+            string serverUrl = "http://34.145.96.130:9876";
             string token = "]4]88Nft9*wn";
 
             try
